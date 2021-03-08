@@ -1,5 +1,6 @@
 var recording = false;
 var timer = new AdjustingInterval(1000);
+var currentEntryStartTime, currentEntryStopTime;
 
 function ToggleTimer() {
     var timeElapsed = document.getElementById("timeElapsed");
@@ -29,6 +30,8 @@ function ToggleTimer() {
 }
   
 function ShowModal() {
+    document.getElementById("startTimePicker").value = currentEntryStartTime;
+    document.getElementById("stopTimePicker").value = currentEntryStopTime;
     var itemModal = document.getElementById("myModal");
     itemModal.style.display = "block";
     document.getElementById("discardEntryButton").onclick = function() {
@@ -36,13 +39,11 @@ function ShowModal() {
     };
     document.getElementById("saveEntryButton").onclick = function() {
         itemModal.style.display = "none";
+        var description = document.getElementById("floatingDescription").value;
+        var chargeNumber = document.getElementById("chargeNumber").value;
+        var startTime = currentEntryStartTime;
+        var stopTime = currentEntryStopTime;
     };
-}
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == itemModal) {
-      itemModal.style.display = "none";
-    }
 }
 
 /*
@@ -51,7 +52,7 @@ window.onclick = function(event) {
  */
 function AdjustingInterval(interval) {
     var that = this;
-    var expected, timeout, currentEntryStartTime;
+    var expected, timeout;
     this.interval = interval;
 
     this.start = function() {
@@ -62,6 +63,7 @@ function AdjustingInterval(interval) {
 
     this.stop = function() {
         clearTimeout(timeout);
+        currentEntryStopTime = Date.now();
     }
 
     function step() {
@@ -83,5 +85,15 @@ function getTimeSpan(ticks) {
         hour: d.getUTCHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), 
         minute: d.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), 
         second: d.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
+    }
+}
+
+class Entry {
+    constructor(id, startTime, endTime, description, chargeNumber) {
+        this.id = id;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+        this.chargeNumber = chargeNumber;
     }
 }
