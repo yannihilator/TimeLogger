@@ -2,17 +2,31 @@ var recording = false;
 var timer = new AdjustingInterval(1000);
 
 function ToggleTimer(){
+    var timeElapsed = document.getElementById("timeElapsed");
+    var startStopButton = document.getElementById("startStopButton");
     if (recording === false){
         recording = true;
         timer.start();
-        document.getElementById("startStopButton").innerHTML = "Stop";
+
+        //updates UI elements
+        startStopButton.innerHTML = "Stop";
+        startStopButton.style.backgroundColor = "#892cdc";
+        //timeElapsed.setAttribute("class", "display-5");
+        timeElapsed.style.fontWeight = "bold";
+        //startStopButton.setAttribute("data-target", "#modalCenterPrompt");
     }
     else{
         recording = false;
         timer.stop();
-        document.getElementById("timeElapsed").innerHTML = "00:00:00";
-        document.getElementById("startStopButton").innerHTML = "Start";
+
+        //resets UI elements
+        timeElapsed.innerHTML = "00:00:00";
+        startStopButton.innerHTML = "Start";
+        startStopButton.style.backgroundColor = "#52057b";
         document.getElementById("tabTitle").innerHTML = "Time Logger"
+        //timeElapsed.setAttribute("class", "display-6");
+        timeElapsed.style.fontWeight = "normal";
+        //startStopButton.setAttribute("data-target", "");
     }
 
 }
