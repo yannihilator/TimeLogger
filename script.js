@@ -1,9 +1,10 @@
 var recording = false;
 var timer = new AdjustingInterval(1000);
 
-function ToggleTimer(){
+function ToggleTimer() {
     var timeElapsed = document.getElementById("timeElapsed");
     var startStopButton = document.getElementById("startStopButton");
+
     if (recording === false){
         recording = true;
         timer.start();
@@ -11,9 +12,7 @@ function ToggleTimer(){
         //updates UI elements
         startStopButton.innerHTML = "Stop";
         startStopButton.style.backgroundColor = "#892cdc";
-        //timeElapsed.setAttribute("class", "display-5");
         timeElapsed.style.fontWeight = "bold";
-        //startStopButton.setAttribute("data-target", "#modalCenterPrompt");
     }
     else{
         recording = false;
@@ -23,12 +22,27 @@ function ToggleTimer(){
         timeElapsed.innerHTML = "00:00:00";
         startStopButton.innerHTML = "Start";
         startStopButton.style.backgroundColor = "#52057b";
-        document.getElementById("tabTitle").innerHTML = "Time Logger"
-        //timeElapsed.setAttribute("class", "display-6");
         timeElapsed.style.fontWeight = "normal";
-        //startStopButton.setAttribute("data-target", "");
+        document.getElementById("tabTitle").innerHTML = "Time Logger"
+        ShowModal();
     }
-
+}
+  
+function ShowModal() {
+    var itemModal = document.getElementById("myModal");
+    itemModal.style.display = "block";
+    document.getElementById("discardEntryButton").onclick = function() {
+        itemModal.style.display = "none";
+    };
+    document.getElementById("saveEntryButton").onclick = function() {
+        itemModal.style.display = "none";
+    };
+}
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == itemModal) {
+      itemModal.style.display = "none";
+    }
 }
 
 /*
