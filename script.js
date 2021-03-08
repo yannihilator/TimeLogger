@@ -12,20 +12,16 @@ function ToggleTimer(){
         timer.stop();
         document.getElementById("timeElapsed").innerHTML = "00:00:00";
         document.getElementById("startStopButton").innerHTML = "Start";
+        document.getElementById("tabTitle").innerHTML = "Time Logger"
     }
 
 }
 
-/**
+/*
  * Self-adjusting interval to account for drifting
- * 
- * @param {function} workFunc  Callback containing the work to be done
- *                             for each interval
  * @param {int}      interval  Interval speed (in milliseconds) - This 
- * @param {function} errorFunc (Optional) Callback to run if the drift
- *                             exceeds interval
  */
-function AdjustingInterval(interval, errorFunc) {
+function AdjustingInterval(interval) {
     var that = this;
     var expected, timeout, currentEntryStartTime;
     this.interval = interval;
@@ -42,15 +38,14 @@ function AdjustingInterval(interval, errorFunc) {
 
     function step() {
         var drift = Date.now() - expected;
-        if (drift > that.interval) {
-            // You could have some default stuff here too...
-            if (errorFunc) errorFunc();
-        }
         expected += that.interval;
         timeout = setTimeout(step, Math.max(0, that.interval-drift));
-        //do work here
+        
+        //updates UI with new timespan
         var timespan = getTimeSpan(Date.now() - currentEntryStartTime);
-        document.getElementById("timeElapsed").innerHTML = timespan.hour + ":" + timespan.minute + ":" + timespan.second;
+        var timespanString = timespan.hour + ":" + timespan.minute + ":" + timespan.second;
+        document.getElementById("timeElapsed").innerHTML = timespanString;
+        document.getElementById("tabTitle").innerHTML = timespanString + " - Time Logger"
     }
 }
 
