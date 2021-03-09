@@ -2,6 +2,17 @@ var currentEntryStartTime, currentEntryStopTime;
 var recording = false;
 var timer = new AdjustingInterval(1000);
 var fs = require('fs');
+const { start } = require('repl');
+
+
+
+class ChargeNumber {
+    constructor(id, description, value) {
+        this.id = id,
+        this.description = description,
+        this.value = value
+    }
+}
 
 function ToggleTimer() {
     var timeElapsed = document.getElementById("timeElapsed");
@@ -31,6 +42,16 @@ function ToggleTimer() {
 }
   
 function ShowModal() {
+    class Entry {
+        constructor(id, startTime, endTime, description, chargeNumber) {
+            this.id = id;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.description = description;
+            this.chargeNumber = chargeNumber;
+        }
+    }
+    
     //converts ticks to usable format
     var startTime = ConvertDateTicks(currentEntryStartTime, false);
     var stopTime = ConvertDateTicks(currentEntryStopTime, false);
@@ -48,10 +69,12 @@ function ShowModal() {
     //sets save button click method
     document.getElementById("saveEntryButton").onclick = function() {
         itemModal.style.display = "none";
-        var description = document.getElementById("floatingDescription").value;
-        var chargeNumber = document.getElementById("chargeNumber").value;
-        var startTime = currentEntryStartTime;
-        var stopTime = currentEntryStopTime;
+        let description = document.getElementById("floatingDescription").value;
+        let chargeNumber = document.getElementById("chargeNumber").value;
+        let startTime = currentEntryStartTime;
+        let stopTime = currentEntryStopTime;
+        let entry = new Entry(0, startTime, stopTime, description, chargeNumber);
+        SaveEntries(entry);
     };
 }
 
@@ -115,12 +138,14 @@ function ConvertDateTicks(ticks, timespan) {
 }
 
 function GetEntries() {
-    return fs.readFile('data.json', 'utf8', function readFileCallback(err, data){
+    var entries = fs.readFile('data.json', 'utf8', function readFileCallback(err, data){
         if (err){
             console.log(err);
         } else {
-        return JSON.parse(data);
+        return JSON.parse(data);      
     }});
+    console.log(entries);
+    return entries;
 }
 
 function SaveEntries(data) {
@@ -139,20 +164,3 @@ function TodaysEntries() {
     });
 }
 
-class Entry {
-    constructor(id, startTime, endTime, description, chargeNumber) {
-        this.id = id;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.description = description;
-        this.chargeNumber = chargeNumber;
-    }
-}
-
-class ChargeNumber {
-    constructor(id, description, value) {
-        this.id = id,
-        this.description = description,
-        this.value = value
-    }
-}
