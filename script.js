@@ -1,6 +1,7 @@
+var currentEntryStartTime, currentEntryStopTime;
 var recording = false;
 var timer = new AdjustingInterval(1000);
-var currentEntryStartTime, currentEntryStopTime;
+var fs = require('fs');
 
 function ToggleTimer() {
     var timeElapsed = document.getElementById("timeElapsed");
@@ -31,8 +32,8 @@ function ToggleTimer() {
   
 function ShowModal() {
     //converts ticks to usable format
-    var startTime = convertDateTicks(currentEntryStartTime, false);
-    var stopTime = convertDateTicks(currentEntryStopTime, false);
+    var startTime = ConvertDateTicks(currentEntryStartTime, false);
+    var stopTime = ConvertDateTicks(currentEntryStopTime, false);
     //sets time picker values
     document.getElementById("startTimePicker").value = startTime.year + "-" + startTime.month + "-" + startTime.date + "T" + startTime.hour + ":" + startTime.minute + ":" + startTime.second;
     document.getElementById("stopTimePicker").value = stopTime.year + "-" + stopTime.month + "-" + stopTime.date + "T" + stopTime.hour + ":" + stopTime.minute + ":" + stopTime.second;
@@ -57,7 +58,7 @@ function ShowModal() {
 function UpdateModalDuration() {
     var start = Date.parse(document.getElementById("startTimePicker").value);
     var stop = Date.parse(document.getElementById("stopTimePicker").value);
-    var duration = convertDateTicks(stop - start, true);
+    var duration = ConvertDateTicks(stop - start, true);
     document.getElementById("durationModal").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
 }
 
@@ -66,31 +67,34 @@ function AdjustingInterval(interval) {
     var expected, timeout;
     this.interval = interval;
 
+    //starts timer
     this.start = function() {
         expected = Date.now() + this.interval;
         currentEntryStartTime = Date.now();
         timeout = setTimeout(step, this.interval);
     }
 
+    //stops timer
     this.stop = function() {
         clearTimeout(timeout);
         currentEntryStopTime = Date.now();
     }
 
+    //timer tick
     function step() {
         var drift = Date.now() - expected;
         expected += that.interval;
         timeout = setTimeout(step, Math.max(0, that.interval-drift));
         
         //updates UI with new timespan
-        var timespan = convertDateTicks(Date.now() - currentEntryStartTime, true);
+        var timespan = ConvertDateTicks(Date.now() - currentEntryStartTime, true);
         var timespanString = timespan.hour + ":" + timespan.minute + ":" + timespan.second;
         document.getElementById("timeElapsed").innerHTML = timespanString;
         document.getElementById("tabTitle").innerHTML = timespanString + " - Time Logger"
     }
 }
 
-function convertDateTicks(ticks, timespan) {
+function ConvertDateTicks(ticks, timespan) {
     var hours;
     var d = new Date(ticks);
     //if the tick value is for a timespan, the hours need to use the UTC method
@@ -108,6 +112,31 @@ function convertDateTicks(ticks, timespan) {
         minute: d.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), 
         second: d.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
     }
+}
+
+function GetEntries() {
+    return fs.readFile('data.json', 'utf8', function readFileCallback(err, data){
+        if (err){
+            console.log(err);
+        } else {
+        return JSON.parse(data);
+    }});
+}
+
+function SaveEntries(data) {
+    var obj = {
+        table: []
+     };
+    obj.table.push(data); //adds data
+    json = JSON.stringify(obj); //converts it to json
+    fs.writeFile('data.json', json, 'utf8', callback); // writes it to file 
+}
+
+function TodaysEntries() {
+    var entries = GetEntries();
+    return entries.filter(function(i,n) {
+        n.startTime >= Date.getDate();
+    });
 }
 
 class Entry {
