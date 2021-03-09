@@ -30,13 +30,21 @@ function ToggleTimer() {
 }
   
 function ShowModal() {
-    document.getElementById("startTimePicker").value = currentEntryStartTime;
-    document.getElementById("stopTimePicker").value = currentEntryStopTime;
+    //converts ticks to usable format
+    var startTime = convertDateTicks(currentEntryStartTime, false);
+    var stopTime = convertDateTicks(currentEntryStopTime, false);
+    //sets time picker values
+    document.getElementById("startTimePicker").value = startTime.year + "-" + startTime.month + "-" + startTime.date + "T" + startTime.hour + ":" + startTime.minute + ":" + startTime.second;
+    document.getElementById("stopTimePicker").value = stopTime.year + "-" + stopTime.month + "-" + stopTime.date + "T" + stopTime.hour + ":" + stopTime.minute + ":" + stopTime.second;
+    UpdateModalDuration(null);
+    //displays modal
     var itemModal = document.getElementById("myModal");
     itemModal.style.display = "block";
+    //sets discard button click method
     document.getElementById("discardEntryButton").onclick = function() {
         itemModal.style.display = "none";
     };
+    //sets save button click method
     document.getElementById("saveEntryButton").onclick = function() {
         itemModal.style.display = "none";
         var description = document.getElementById("floatingDescription").value;
@@ -46,10 +54,13 @@ function ShowModal() {
     };
 }
 
-/*
- * Self-adjusting interval to account for drifting
- * @param {int}      interval  Interval speed (in milliseconds) - This 
- */
+function UpdateModalDuration() {
+    var start = Date.parse(document.getElementById("startTimePicker").value);
+    var stop = Date.parse(document.getElementById("stopTimePicker").value);
+    var duration = convertDateTicks(stop - start, true);
+    document.getElementById("durationModal").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
+}
+
 function AdjustingInterval(interval) {
     var that = this;
     var expected, timeout;
@@ -72,17 +83,28 @@ function AdjustingInterval(interval) {
         timeout = setTimeout(step, Math.max(0, that.interval-drift));
         
         //updates UI with new timespan
-        var timespan = getTimeSpan(Date.now() - currentEntryStartTime);
+        var timespan = convertDateTicks(Date.now() - currentEntryStartTime, true);
         var timespanString = timespan.hour + ":" + timespan.minute + ":" + timespan.second;
         document.getElementById("timeElapsed").innerHTML = timespanString;
         document.getElementById("tabTitle").innerHTML = timespanString + " - Time Logger"
     }
 }
 
-function getTimeSpan(ticks) {
+function convertDateTicks(ticks, timespan) {
+    var hours;
     var d = new Date(ticks);
+    //if the tick value is for a timespan, the hours need to use the UTC method
+    if (timespan === true) {
+        hours = d.getUTCHours();
+    }
+    else {
+        hours = d.getHours();
+    }
     return {
-        hour: d.getUTCHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), 
+        year: d.getFullYear(),
+        month: (d.getMonth() + 1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
+        date: d.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
+        hour: hours.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), 
         minute: d.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), 
         second: d.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
     }

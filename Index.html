@@ -42,12 +42,12 @@
         </header>
         <br>
         <div class="text-center">
-            <h1 id="dateHeader" class="display-5">Logged time for  
+            <h1 id="dateHeader" style="color: #222529;" class="display-5">Time Log   
                 <script>
-                    document.write(new Date().toLocaleString("en-US", {year: 'numeric', month: 'long', day: 'numeric'}).fontcolor("#222529"));
+                    document.write(new Date().toLocaleString("en-US", {year: 'numeric', month: 'long', day: 'numeric'}).fontcolor("whitesmoke"));
                 </script>
             </h1>
-            <hr/>
+            <hr style="width: 85%; margin: auto;"/>
             <br>
             <button id="startStopButton" onclick="ToggleTimer()" style="background-color:#52057b;" type="button" class="btn btn-dark btn-lg">Start</button>
             <br>
@@ -72,10 +72,17 @@
                     <input id="startTimePicker" type="datetime-local" style="width: 60%;"></input>
                   </div>
                   <div class="row justify-content-lg-center" style="width: 50%;">
-                    <label for="stopTimePicker" style="width: 40%; margin-right: 0px;">End Time</label>
-                    <input id="stopTimePicker" type="datetime-local" style="width: 60%;"></input>
+                    <label for="stopTimePicker" change="UpdateModalDuration()" style="width: 40%; margin-right: 0px;">End Time</label>
+                    <input id="stopTimePicker" change="UpdateModalDuration()" type="datetime-local" style="width: 60%;"></input>
                   </div>
                 </div>        
+                <br>
+                <div class="text-center">
+                  <h1 class="display-6" style="color: #222529; font-size: large; font-weight: bolder;">
+                    Duration 
+                    <span id="durationModal" class="display-6" style="color: #222529; font-size: large;"></span>
+                  </h1>
+                </div>
                 <br>
                 <div class="form-floating">
                   <textarea class="form-control" placeholder="null" style="height: 100px;" id="floatingDescription"></textarea>
