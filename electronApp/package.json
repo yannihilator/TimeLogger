@@ -1,4 +1,3 @@
-
 {
   "name": "TimeLogger",
   "version": "0.1.0",
@@ -6,6 +5,6 @@
   "description": "A simple, local and quick way to log your workday.",
   "main": "main.js",
   "scripts": {
-      "start": "electron ."
+    "start": "electron ."
   }
 }
