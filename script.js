@@ -1,7 +1,6 @@
 var currentEntryStartTime, currentEntryStopTime;
 var recording = false;
 var timer = new AdjustingInterval(1000);
-var fs = require('fs');
 
 function ToggleTimer() {
     var timeElapsed = document.getElementById("timeElapsed");
@@ -31,6 +30,16 @@ function ToggleTimer() {
 }
   
 function ShowModal() {
+    class Entry {
+        constructor(id, startTime, endTime, description, chargeNumber) {
+            this.id = id;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.description = description;
+            this.chargeNumber = chargeNumber;
+        }
+    }
+
     //converts ticks to usable format
     var startTime = ConvertDateTicks(currentEntryStartTime, false);
     var stopTime = ConvertDateTicks(currentEntryStopTime, false);
@@ -48,12 +57,27 @@ function ShowModal() {
     //sets save button click method
     document.getElementById("saveEntryButton").onclick = function() {
         itemModal.style.display = "none";
+        var id = GetNextId("Entry");
         var description = document.getElementById("floatingDescription").value;
         var chargeNumber = document.getElementById("chargeNumber").value;
         var startTime = currentEntryStartTime;
         var stopTime = currentEntryStopTime;
+        var entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
+        localStorage.setItem(id, JSON.stringify(entry));
     };
 }
+
+function GetNextId(type) {
+    var keys = Object.keys(localStorage).filter(function(key){ return key.includes("timeLogger." + type); });
+    if(keys.length > 0) {
+        var ids = keys.map(function(key) { return parseInt(key.split("_").pop()); });
+        var newId = Math.max.apply(Math, ids) + 1;
+        
+        return "timeLogger." + type + "_" + newId;
+    }
+    else return "timeLogger." + type + "_1";
+}
+
 
 function UpdateModalDuration() {
     var start = Date.parse(document.getElementById("startTimePicker").value);
@@ -139,15 +163,7 @@ function TodaysEntries() {
     });
 }
 
-class Entry {
-    constructor(id, startTime, endTime, description, chargeNumber) {
-        this.id = id;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.description = description;
-        this.chargeNumber = chargeNumber;
-    }
-}
+
 
 class ChargeNumber {
     constructor(id, description, value) {
