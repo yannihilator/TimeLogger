@@ -30,16 +30,6 @@ function ToggleTimer() {
 }
   
 function ShowModal() {
-    class Entry {
-        constructor(id, startTime, endTime, description, chargeNumber) {
-            this.id = id;
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.description = description;
-            this.chargeNumber = chargeNumber;
-        }
-    }
-
     //converts ticks to usable format
     var startTime = ConvertDateTicks(currentEntryStartTime, false);
     var stopTime = ConvertDateTicks(currentEntryStopTime, false);
@@ -77,7 +67,6 @@ function GetNextId(type) {
     }
     else return "timeLogger." + type + "_1";
 }
-
 
 function UpdateModalDuration() {
     var start = Date.parse(document.getElementById("startTimePicker").value);
@@ -139,12 +128,14 @@ function ConvertDateTicks(ticks, timespan) {
 }
 
 function GetEntries() {
-    return fs.readFile('data.json', 'utf8', function readFileCallback(err, data){
-        if (err){
-            console.log(err);
-        } else {
-        return JSON.parse(data);
-    }});
+    var entries = [],
+        keys = Object.keys(localStorage),
+        i = keys.length;
+
+    while ( i-- ) {
+        entries.push( localStorage.getItem(keys[i]) );
+    }
+    return entries;
 }
 
 function SaveEntries(data) {
@@ -163,12 +154,18 @@ function TodaysEntries() {
     });
 }
 
+//makeshift class for log entry
+function Entry(id, startTime, endTime, description, chargeNumber) {
+    this.id = id;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.description = description;
+    this.chargeNumber = chargeNumber;
+}
 
-
-class ChargeNumber {
-    constructor(id, description, value) {
-        this.id = id,
-        this.description = description,
-        this.value = value
-    }
+//makeshift class for charge number
+function ChargeNumber(id, description, value) {  
+    this.id = id;
+    this.description = description;
+    this.value = value;
 }

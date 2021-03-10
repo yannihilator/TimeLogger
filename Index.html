@@ -29,9 +29,12 @@
             <hr style="width: 85%; margin: auto;"/>
             <br>
             <div>
-              <p onload="TodaysEntries()">
-
-              </p>
+              <script type="text/javascript">
+                var entries = TodaysEntries();
+                entries.forEach(element => {
+                  document.write(element.id);
+                });
+              </script>
             </div>
         </div>
 
