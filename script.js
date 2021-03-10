@@ -127,6 +127,12 @@ function ConvertDateTicks(ticks, timespan) {
     }
 }
 
+function TwelveHourTime(hour, minute, second) {
+    var suffix = hour >= 12 ? " PM":" AM";
+    var hour = ((hour + 11) % 12 + 1);
+    return hour + ":" + minute + ":" + second + suffix;
+}
+
 function GetEntries() {
     var entries = [],
         keys = Object.keys(localStorage),
@@ -149,9 +155,10 @@ function SaveEntries(data) {
 
 function TodaysEntries() {
     var entries = GetEntries();
-    return entries.filter(function(i,n) {
-        n.startTime >= Date.getDate();
+    var filtered = entries.map(function(json) {return JSON.parse(json); }).filter(function(entry) {
+        return entry.startTime >= new Date().setHours(0,0,0,0);
     });
+    return filtered;
 }
 
 //makeshift class for log entry

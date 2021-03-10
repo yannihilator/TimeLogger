@@ -28,14 +28,48 @@
             <br>
             <hr style="width: 85%; margin: auto;"/>
             <br>
-            <div>
+        </div>
+        <div class="row justify-content-md-center">
+          <table class="table table-hover table-striped" style="width: 80%;">
+            <style>
+              td{border: none};
+              th{border-bottom-width: thick; border-bottom-color: #222529;}
+            </style>
+            <thead>
+              <tr style="border-bottom-width: thick; border-bottom-style: double; border-bottom-color: #222529;">
+                <th scope="col">Charge Number</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Start Time</th>
+                <th scope="col">End Time</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
               <script type="text/javascript">
                 var entries = TodaysEntries();
-                entries.forEach(element => {
-                  document.write(element.id);
+                var totalDuration = ConvertDateTicks(entries.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
+                document.write('<tr style="border-bottom-width: thick; border-bottom-color: #222529;">' +
+                  '<th>-</th>' +
+                  '<th>' + totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second +'</th>' +
+                  '<th>-</th>' +
+                  '<th>-</th>' +
+                  '<th>-</th>' +
+                '</tr>');
+                entries.forEach(entry => {
+                  var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+                  var startTime = ConvertDateTicks(entry.startTime, false);
+                  var endTime = ConvertDateTicks(entry.endTime, false);
+                  document.write('<tr>' +
+                    '<td>' + entry.chargeNumber +'</td>' +
+                    '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
+                    '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second) + '</td>' +
+                    '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second) + '</td>' +
+                    '<td>' + entry.description +'</td>' +
+                  '</tr>');
                 });
               </script>
-            </div>
+            </tbody>
+          </table>
         </div>
 
         <div id="myModal" class="modal">
