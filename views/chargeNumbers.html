@@ -3,35 +3,17 @@
     <head>
         <title id="tabTitle">Time Logger</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-        <link rel="stylesheet" href="style.css">
-        <script src="script.js"></script>
-        <script  src="components/nav.js"></script>
+        <link rel="stylesheet" href="../style.css">
+        <script src="../script.js"></script>
+        <script src="../components/nav.js"></script>
     </head>
     <body>
         <header>
-          <script>nav("today");</script>
+          <script>nav("chargenumbers")</script>             
         </header>
         <br>
         <div class="text-center">
-            <h1 id="dateHeader" style="color: #222529;" class="display-5">Time Log   
-                <script>
-                    document.write(new Date().toLocaleString("en-US", {year: 'numeric', month: 'long', day: 'numeric'}).fontcolor("whitesmoke"));
-                </script>
-            </h1>
-            <hr style="width: 85%; margin: auto;"/>
-            <br>
-            <button id="startStopButton" onclick="ToggleTimer()" style="background-color:#52057b;" type="button" class="btn btn-dark btn-lg">Start</button>
-            <br>
-            <br>
-            <h3 id="timeElapsed" class="display-6" style="color: whitesmoke;">00:00:00</h3>
-            <br>
-            <hr style="width: 85%; margin: auto;"/>
-            <br>
-            <div>
-              <p onload="TodaysEntries()">
-
-              </p>
-            </div>
+            Charge Numbers
         </div>
 
         <div id="myModal" class="modal">
