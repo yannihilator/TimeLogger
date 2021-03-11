@@ -75,9 +75,44 @@ function UpdateModalDuration() {
     document.getElementById("durationModal").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
 }
 
+function RefreshTodayUI() {
+    var entries = TodaysEntries();
+    var totalDuration = ConvertDateTicks(entries.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
+    document.write('<div class="text-center">' +
+    '  <h1 class="display-6" style="color: #222529; font-size: x-large; font-weight: bold;">' +
+    '    Total ' +
+    '    <span id="totalDuration" class="display-6" style="color: #222529; font-size: x-large;">' + totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second + '</span>' +
+    '  </h1>' +
+    '</div>');
+    //populates totals by charge number table
+    entries.forEach(entry => {
+        var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+        var startTime = ConvertDateTicks(entry.startTime, false);
+        var endTime = ConvertDateTicks(entry.endTime, false);
+        document.write('<tr>' +
+          '<td>' + entry.chargeNumber +'</td>' +
+          '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
+          '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
+        '</tr>');
+    });
+    //populates entry list table
+    entries.forEach(entry => {
+        var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+        var startTime = ConvertDateTicks(entry.startTime, false);
+        var endTime = ConvertDateTicks(entry.endTime, false);
+        document.write('<tr>' +
+          '<td>' + entry.chargeNumber +'</td>' +
+          '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
+          '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
+          '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' +
+          '<td>' + entry.description +'</td>' +
+        '</tr>');
+    });
+}
+
 function AdjustingInterval(interval) {
     var that = this;
-    var expected, timeout;
+    var expected, timeout, total;
     this.interval = interval;
 
     //starts timer
@@ -85,6 +120,7 @@ function AdjustingInterval(interval) {
         expected = Date.now() + this.interval;
         currentEntryStartTime = Date.now();
         timeout = setTimeout(step, this.interval);
+        total = TodaysEntries().map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0)
     }
 
     //stops timer
@@ -99,11 +135,19 @@ function AdjustingInterval(interval) {
         expected += that.interval;
         timeout = setTimeout(step, Math.max(0, that.interval-drift));
         
-        //updates UI with new timespan
-        var timespan = ConvertDateTicks(Date.now() - currentEntryStartTime, true);
-        var timespanString = timespan.hour + ":" + timespan.minute + ":" + timespan.second;
-        document.getElementById("timeElapsed").innerHTML = timespanString;
-        document.getElementById("tabTitle").innerHTML = timespanString + " - Time Logger"
+        //updates activity's timespan value
+        var timespan = Date.now() - currentEntryStartTime;
+        var timespanString = ConvertDateTicks(timespan, true);
+        var timespanFormatted = timespanString.hour + ":" + timespanString.minute + ":" + timespanString.second;
+        
+        //updates today's total running value
+        var runningTotal = ConvertDateTicks(total + timespan, true);
+        var runningTotalString = runningTotal.hour + ":" + runningTotal.minute + ":" + runningTotal.second;
+
+        //updates UI with new timespan, as well as continues to update the total
+        document.getElementById("timeElapsed").innerHTML = timespanFormatted;
+        document.getElementById("tabTitle").innerHTML = timespanFormatted + " - Time Logger"
+        document.getElementById("totalDuration").innerHTML = runningTotalString;
     }
 }
 
@@ -127,10 +171,11 @@ function ConvertDateTicks(ticks, timespan) {
     }
 }
 
-function TwelveHourTime(hour, minute, second) {
+function TwelveHourTime(hour, minute, second, showSeconds) {
     var suffix = hour >= 12 ? " PM":" AM";
-    var hour = ((hour + 11) % 12 + 1);
-    return hour + ":" + minute + ":" + second + suffix;
+    var hour = hour > 12 ? ((hour + 11) % 12 + 1) : hour;
+    var value = showSeconds ? hour + ":" + minute + ":" + second + suffix : hour + ":" + minute + suffix;
+    return value;
 }
 
 function GetEntries() {
