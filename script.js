@@ -25,38 +25,78 @@ function ToggleTimer() {
         startStopButton.style.backgroundColor = "#52057b";
         timeElapsed.style.fontWeight = "normal";
         document.getElementById("tabTitle").innerHTML = "Time Logger"
-        ShowModal();
+        EntryModal(false);
     }
 }
   
-function ShowModal() {
-    //converts ticks to usable format
-    var startTime = ConvertDateTicks(currentEntryStartTime, false);
-    var stopTime = ConvertDateTicks(currentEntryStopTime, false);
-    //sets time picker values
-    document.getElementById("startTimePicker").value = startTime.year + "-" + startTime.month + "-" + startTime.date + "T" + startTime.hour + ":" + startTime.minute + ":" + startTime.second;
-    document.getElementById("stopTimePicker").value = stopTime.year + "-" + stopTime.month + "-" + stopTime.date + "T" + stopTime.hour + ":" + stopTime.minute + ":" + stopTime.second;
-    UpdateModalDuration(null);
-    //displays modal
-    var itemModal = document.getElementById("myModal");
-    itemModal.style.display = "block";
-    //sets discard button click method
-    document.getElementById("discardEntryButton").onclick = function() {
-        itemModal.style.display = "none";
-        RefreshTodayUI();
-    };
-    //sets save button click method
-    document.getElementById("saveEntryButton").onclick = function() {
-        itemModal.style.display = "none";
-        var id = GetNextId("Entry");
-        var description = document.getElementById("floatingDescription").value;
-        var chargeNumber = document.getElementById("chargeNumber").value;
-        var startTime = currentEntryStartTime;
-        var stopTime = currentEntryStopTime;
-        var entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
-        localStorage.setItem(id, JSON.stringify(entry));
-        RefreshTodayUI();
-    };
+function EntryModal(edit, id) {
+    if (edit === false) {
+        //converts ticks to usable format
+        var startTime = ConvertDateTicks(currentEntryStartTime, false);
+        var stopTime = ConvertDateTicks(currentEntryStopTime, false);
+        //sets time picker values
+        document.getElementById("startTimePicker").value = startTime.year + "-" + startTime.month + "-" + startTime.date + "T" + startTime.hour + ":" + startTime.minute + ":" + startTime.second;
+        document.getElementById("stopTimePicker").value = stopTime.year + "-" + stopTime.month + "-" + stopTime.date + "T" + stopTime.hour + ":" + stopTime.minute + ":" + stopTime.second;
+        var test = document.getElementById("startTimePicker").value;
+        UpdateModalDuration();
+        //displays modal
+        var itemModal = document.getElementById("myModal");
+        document.getElementById("floatingDescription").value = null;
+        document.getElementById("entryModalHeader").innerHTML = "Save Entry";
+        document.getElementById("discardEntryButton").innerHTML = "Discard"
+        itemModal.style.display = "block";
+        //sets discard button click method
+        document.getElementById("discardEntryButton").onclick = function() {
+            itemModal.style.display = "none";
+            RefreshTodayUI();
+        };
+        //sets save button click method
+        document.getElementById("saveEntryButton").onclick = function() {
+            itemModal.style.display = "none";
+            var id = GetNextId("Entry");
+            var description = document.getElementById("floatingDescription").value;
+            var chargeNumber = document.getElementById("chargeNumber").value;
+            var startTime = new Date(document.getElementById("startTimePicker").value).getTime();
+            var stopTime = new Date(document.getElementById("stopTimePicker").value).getTime();
+            var entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
+            localStorage.setItem(id, JSON.stringify(entry));
+            RefreshTodayUI();
+        };
+    }
+    else {
+        if (id !== undefined) {
+            var entry = EntryById(id);
+            //converts ticks to usable format
+            var startTime = ConvertDateTicks(entry.startTime, false);
+            var stopTime = ConvertDateTicks(entry.stopTime, false);
+            //sets time picker values
+            document.getElementById("startTimePicker").value = startTime.year + "-" + startTime.month + "-" + startTime.date + "T" + startTime.hour + ":" + startTime.minute + ":" + startTime.second;
+            document.getElementById("stopTimePicker").value = stopTime.year + "-" + stopTime.month + "-" + stopTime.date + "T" + stopTime.hour + ":" + stopTime.minute + ":" + stopTime.second;
+            UpdateModalDuration();
+            //displays modal
+            var itemModal = document.getElementById("myModal");
+            document.getElementById("floatingDescription").value = null;
+            document.getElementById("entryModalHeader").innerHTML = "Edit Entry";
+            document.getElementById("discardEntryButton").innerHTML = "Cancel"
+            itemModal.style.display = "block";
+            //sets discard button click method
+            document.getElementById("discardEntryButton").onclick = function() {
+                itemModal.style.display = "none";
+            };
+            //sets save button click method
+            document.getElementById("saveEntryButton").onclick = function() {
+                itemModal.style.display = "none";
+                var id = "timeLogger.Entry_" + entry.id;
+                var description = document.getElementById("floatingDescription").value;
+                var chargeNumber = document.getElementById("chargeNumber").value;
+                var startTime = new Date(document.getElementById("startTimePicker").value).getTime();
+                var stopTime = new Date(document.getElementById("stopTimePicker").value).getTime();
+                var entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
+                localStorage.setItem(id, JSON.stringify(entry));
+                RefreshTodayUI();
+            };
+        }
+    }
 }
 
 function GetNextId(type) {
@@ -109,6 +149,11 @@ function RefreshTodayUI() {
           '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
           '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
           '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
+          '<td><button onclick="EntryModal(true, ' + entry.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
+          '<td><button onclick="EntryModal(true, ' + entry.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
+                '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
+            '</svg></button></td>' +
         '</tr>';
     });
 }
@@ -123,7 +168,7 @@ function AdjustingInterval(interval) {
         expected = Date.now() + this.interval;
         currentEntryStartTime = Date.now();
         timeout = setTimeout(step, this.interval);
-        total = TodaysEntries().map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0)
+        total = new Date(TodaysEntries().map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0)).setMilliseconds(0);
     }
 
     //stops timer
@@ -176,7 +221,7 @@ function ConvertDateTicks(ticks, timespan) {
 
 function TwelveHourTime(hour, minute, second, showSeconds) {
     var suffix = hour >= 12 ? " PM":" AM";
-    var hour = hour > 12 ? ((hour + 11) % 12 + 1) : hour;
+    var hour = hour > 12 ? hour - 12 : hour;
     var value = showSeconds ? hour + ":" + minute + ":" + second + suffix : hour + ":" + minute + suffix;
     return value;
 }
@@ -198,6 +243,10 @@ function TodaysEntries() {
         return entry.startTime >= new Date().setHours(0,0,0,0);
     });
     return filtered.sort((a, b) => (a.startTime > b.startTime) ? -1 : 1);
+}
+
+function EntryById(id) {
+    return localStorage.getItem("timeLogger.Entry_" + id);
 }
 
 //makeshift class for log entry

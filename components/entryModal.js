@@ -1,7 +1,7 @@
 function entryModal() {
     document.write('<div class="modal-content">' +
     '<div class="modal-header">' +
-    '  <h2>Save Entry</h2>' +
+    '  <h2 id="entryModalHeader">Save Entry</h2>' +
     '</div>' +
     '<br>' +
     '<div class="modal-body">' +
