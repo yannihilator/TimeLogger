@@ -43,6 +43,7 @@ function ShowModal() {
     //sets discard button click method
     document.getElementById("discardEntryButton").onclick = function() {
         itemModal.style.display = "none";
+        RefreshTodayUI();
     };
     //sets save button click method
     document.getElementById("saveEntryButton").onclick = function() {
@@ -54,6 +55,7 @@ function ShowModal() {
         var stopTime = currentEntryStopTime;
         var entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
         localStorage.setItem(id, JSON.stringify(entry));
+        RefreshTodayUI();
     };
 }
 
@@ -78,35 +80,36 @@ function UpdateModalDuration() {
 function RefreshTodayUI() {
     var entries = TodaysEntries();
     var totalDuration = ConvertDateTicks(entries.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
-    document.write('<div class="text-center">' +
+    document.getElementById("todaysTotal").innerHTML = '<div class="text-center">' +
     '  <h1 class="display-6" style="color: #222529; font-size: x-large; font-weight: bold;">' +
     '    Total ' +
     '    <span id="totalDuration" class="display-6" style="color: #222529; font-size: x-large;">' + totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second + '</span>' +
     '  </h1>' +
-    '</div>');
+    '</div>';
     //populates totals by charge number table
-    entries.forEach(entry => {
-        var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
-        var startTime = ConvertDateTicks(entry.startTime, false);
-        var endTime = ConvertDateTicks(entry.endTime, false);
-        document.write('<tr>' +
-          '<td>' + entry.chargeNumber +'</td>' +
-          '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
-          '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
-        '</tr>');
+    document.getElementById("chargeTotalsRows").innerHTML = null; //resets
+    var grouped = groupBy(entries, entry => entry.chargeNumber);
+    grouped.forEach(chargeNumber => {
+        let chargeDuration = ConvertDateTicks(chargeNumber.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
+        document.getElementById("chargeTotalsRows").innerHTML += '<tr>' +
+          '<td>' + chargeNumber[0].chargeNumber +'</td>' +
+          '<td>' + chargeDuration.hour + ":" + chargeDuration.minute + ":" + chargeDuration.second +'</td>' +
+          '<td>' + (parseInt(chargeDuration.hour) + parseInt(chargeDuration.minute)/60).toFixed(1) + '</td>' +
+        '</tr>';
     });
     //populates entry list table
+    document.getElementById("entryListRows").innerHTML = null; //resets
     entries.forEach(entry => {
         var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
         var startTime = ConvertDateTicks(entry.startTime, false);
         var endTime = ConvertDateTicks(entry.endTime, false);
-        document.write('<tr>' +
+        document.getElementById("entryListRows").innerHTML += '<tr>' +
+          '<td>' + entry.description +'</td>' +  
           '<td>' + entry.chargeNumber +'</td>' +
           '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
           '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
-          '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' +
-          '<td>' + entry.description +'</td>' +
-        '</tr>');
+          '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
+        '</tr>';
     });
 }
 
@@ -189,21 +192,12 @@ function GetEntries() {
     return entries;
 }
 
-function SaveEntries(data) {
-    var obj = {
-        table: []
-     };
-    obj.table.push(data); //adds data
-    json = JSON.stringify(obj); //converts it to json
-    fs.writeFile('data.json', json, 'utf8', callback); // writes it to file 
-}
-
 function TodaysEntries() {
     var entries = GetEntries();
     var filtered = entries.map(function(json) {return JSON.parse(json); }).filter(function(entry) {
         return entry.startTime >= new Date().setHours(0,0,0,0);
     });
-    return filtered;
+    return filtered.sort((a, b) => (a.startTime > b.startTime) ? -1 : 1);
 }
 
 //makeshift class for log entry
@@ -220,4 +214,32 @@ function ChargeNumber(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
+}
+
+/**
+ * @description
+ * Takes an Array<V>, and a grouping function,
+ * and returns a Map of the array grouped by the grouping function.
+ *
+ * @param list An array of type V.
+ * @param keyGetter A Function that takes the the Array type V as an input, and returns a value of type K.
+ *                  K is generally intended to be a property key of V.
+ *
+ * @returns Map of the array grouped by the grouping function.
+ */
+//export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> {
+//    const map = new Map<K, Array<V>>();
+function groupBy(list, keyGetter) {
+    const map = new Map();
+    list.forEach((item) => {
+         const key = keyGetter(item);
+         const collection = map.get(key);
+         if (!collection) {
+            map.set(key, [item]);
+         } 
+         else {
+            collection.push(item);
+         }
+    });
+    return map;
 }
