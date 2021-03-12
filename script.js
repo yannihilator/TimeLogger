@@ -25,11 +25,11 @@ function ToggleTimer() {
         startStopButton.style.backgroundColor = "#52057b";
         timeElapsed.style.fontWeight = "normal";
         document.getElementById("tabTitle").innerHTML = "Time Logger"
-        EntryModal(false);
+        ShowEntryModal(false);
     }
 }
   
-function EntryModal(edit, id) {
+function ShowEntryModal(edit, id) {
     if (edit === false) {
         //converts ticks to usable format
         var startTime = ConvertDateTicks(currentEntryStartTime, false);
@@ -40,7 +40,7 @@ function EntryModal(edit, id) {
         var test = document.getElementById("startTimePicker").value;
         UpdateModalDuration();
         //displays modal
-        var itemModal = document.getElementById("myModal");
+        var itemModal = document.getElementById("entryModal");
         document.getElementById("floatingDescription").value = null;
         document.getElementById("entryModalHeader").innerHTML = "Save Entry";
         document.getElementById("discardEntryButton").innerHTML = "Discard"
@@ -76,9 +76,10 @@ function EntryModal(edit, id) {
             document.getElementById("chargeNumber").value = entry.chargeNumber;
             UpdateModalDuration();
             //displays modal
-            var itemModal = document.getElementById("myModal");
+            var itemModal = document.getElementById("entryModal");
             document.getElementById("entryModalHeader").innerHTML = "Edit Entry";
             document.getElementById("discardEntryButton").innerHTML = "Cancel"
+            itemModal.value = entry.id;
             itemModal.style.display = "block";
             //sets discard button click method
             document.getElementById("discardEntryButton").onclick = function() {
@@ -87,7 +88,7 @@ function EntryModal(edit, id) {
             //sets save button click method
             document.getElementById("saveEntryButton").onclick = function() {
                 itemModal.style.display = "none";
-                var id = "timeLogger.Entry_" + entry.id;
+                var id = "timeLogger.Entry_" + document.getElementById("entryModal").value;
                 var description = document.getElementById("floatingDescription").value;
                 var chargeNumber = document.getElementById("chargeNumber").value;
                 var startTime = new Date(document.getElementById("startTimePicker").value).getTime();
@@ -98,6 +99,27 @@ function EntryModal(edit, id) {
             };
         }
     }
+}
+
+function ShowDeleteModal(id) {
+    //displays modal
+    var entry = EntryById(id);
+    var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+    var itemModal = document.getElementById("deleteModal");
+    document.getElementById("deleteDescription").innerHTML = entry.description;
+    document.getElementById("deleteDuration").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
+    document.getElementById("deleteCharge").innerHTML = entry.chargeNumber;
+    itemModal.style.display = "block";
+    //sets discard button click method
+    document.getElementById("cancelDeleteButton").onclick = function() {
+        itemModal.style.display = "none";
+    };
+    //sets deletes item function method
+    document.getElementById("deleteEntryButton").onclick = function() {
+        itemModal.style.display = "none";
+        localStorage.removeItem("timeLogger.Entry_" + id);
+        RefreshTodayUI();
+    };
 }
 
 function GetNextId(type) {
@@ -150,8 +172,8 @@ function RefreshTodayUI() {
           '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
           '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
           '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
-          '<td><button onclick="EntryModal(true, ' + entry.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
-          '<td><button onclick="EntryModal(true, ' + entry.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+          '<td><button onclick="ShowEntryModal(true, ' + entry.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
+          '<td><button onclick="ShowDeleteModal(' + entry.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
             '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
                 '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
             '</svg></button></td>' +
