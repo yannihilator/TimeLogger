@@ -72,7 +72,7 @@ function ShowEntryModal(edit, id) {
             //sets values
             document.getElementById("startTimePicker").value = ToDatetimeLocal(startTime);
             document.getElementById("stopTimePicker").value = ToDatetimeLocal(stopTime);
-            document.getElementById("floatingDescription").innerHTML = entry.description;
+            document.getElementById("floatingDescription").value = entry.description;
             document.getElementById("chargeNumber").value = entry.chargeNumber;
             UpdateModalDuration();
             //displays modal
@@ -122,6 +122,42 @@ function ShowDeleteModal(id) {
     };
 }
 
+function CopyDescriptionToClipboard(charge) {
+    //gets today's entries and creates string to copy
+    var str = "";
+    var entries = TodaysEntries();
+    entries.filter(function(entry) { return entry.chargeNumber == charge; })
+    .forEach(entry => 
+        str += str === "" ? entry.description : " " + entry.description
+    );
+    //Creates dummy element
+    var el = document.createElement('textarea');
+    //Sets value (string to be copied)
+    el.value = str;
+    //Sets non-editable to avoid focus and move outside of view
+    el.setAttribute('readonly', '');
+    el.style = {position: 'absolute', left: '-9999px'};
+    document.body.appendChild(el);
+    //Selects text inside element
+    el.select();
+    //Copies text to clipboard
+    document.execCommand('copy');
+    //Removes temporary element
+    document.body.removeChild(el);
+    var button = document.getElementById("copy_" + charge);
+    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">' +
+        '<path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>' +
+        '<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
+        '<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
+    '</svg>';
+    setTimeout(function() {
+        button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">' +
+            '<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
+            '<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
+        '</svg>';
+    }, 2000);
+}
+
 function GetNextId(type) {
     var keys = Object.keys(localStorage).filter(function(key){ return key.includes("timeLogger." + type); });
     if(keys.length > 0) {
@@ -158,6 +194,14 @@ function RefreshTodayUI() {
           '<td>' + chargeNumber[0].chargeNumber +'</td>' +
           '<td>' + chargeDuration.hour + ":" + chargeDuration.minute + ":" + chargeDuration.second +'</td>' +
           '<td>' + (parseInt(chargeDuration.hour) + parseInt(chargeDuration.minute)/60).toFixed(1) + '</td>' +
+          '<td>' + 
+            '<button id="copy_' + chargeNumber[0].chargeNumber + '" onclick="CopyDescriptionToClipboard(' + chargeNumber[0].chargeNumber + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">' +
+                    '<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
+                    '<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
+                '</svg>' +  
+            '</button>' + 
+          '</td>' +
         '</tr>';
     });
     //populates entry list table
