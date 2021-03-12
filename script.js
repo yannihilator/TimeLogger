@@ -35,8 +35,8 @@ function EntryModal(edit, id) {
         var startTime = ConvertDateTicks(currentEntryStartTime, false);
         var stopTime = ConvertDateTicks(currentEntryStopTime, false);
         //sets time picker values
-        document.getElementById("startTimePicker").value = startTime.year + "-" + startTime.month + "-" + startTime.date + "T" + startTime.hour + ":" + startTime.minute + ":" + startTime.second;
-        document.getElementById("stopTimePicker").value = stopTime.year + "-" + stopTime.month + "-" + stopTime.date + "T" + stopTime.hour + ":" + stopTime.minute + ":" + stopTime.second;
+        document.getElementById("startTimePicker").value = ToDatetimeLocal(startTime);
+        document.getElementById("stopTimePicker").value = ToDatetimeLocal(stopTime);
         var test = document.getElementById("startTimePicker").value;
         UpdateModalDuration();
         //displays modal
@@ -68,14 +68,15 @@ function EntryModal(edit, id) {
             var entry = EntryById(id);
             //converts ticks to usable format
             var startTime = ConvertDateTicks(entry.startTime, false);
-            var stopTime = ConvertDateTicks(entry.stopTime, false);
-            //sets time picker values
-            document.getElementById("startTimePicker").value = startTime.year + "-" + startTime.month + "-" + startTime.date + "T" + startTime.hour + ":" + startTime.minute + ":" + startTime.second;
-            document.getElementById("stopTimePicker").value = stopTime.year + "-" + stopTime.month + "-" + stopTime.date + "T" + stopTime.hour + ":" + stopTime.minute + ":" + stopTime.second;
+            var stopTime = ConvertDateTicks(entry.endTime, false);
+            //sets values
+            document.getElementById("startTimePicker").value = ToDatetimeLocal(startTime);
+            document.getElementById("stopTimePicker").value = ToDatetimeLocal(stopTime);
+            document.getElementById("floatingDescription").innerHTML = entry.description;
+            document.getElementById("chargeNumber").value = entry.chargeNumber;
             UpdateModalDuration();
             //displays modal
             var itemModal = document.getElementById("myModal");
-            document.getElementById("floatingDescription").value = null;
             document.getElementById("entryModalHeader").innerHTML = "Edit Entry";
             document.getElementById("discardEntryButton").innerHTML = "Cancel"
             itemModal.style.display = "block";
@@ -219,6 +220,10 @@ function ConvertDateTicks(ticks, timespan) {
     }
 }
 
+function ToDatetimeLocal(time) {
+    return time.year + "-" + time.month + "-" + time.date + "T" + time.hour + ":" + time.minute + ":" + time.second;
+}
+
 function TwelveHourTime(hour, minute, second, showSeconds) {
     var suffix = hour >= 12 ? " PM":" AM";
     var hour = hour > 12 ? hour - 12 : hour;
@@ -246,7 +251,7 @@ function TodaysEntries() {
 }
 
 function EntryById(id) {
-    return localStorage.getItem("timeLogger.Entry_" + id);
+    return JSON.parse(localStorage.getItem("timeLogger.Entry_" + id));
 }
 
 //makeshift class for log entry
