@@ -17,7 +17,7 @@ function deleteChargeModal() {
         '  </div>' +
         '  <br>' +
         '  <br>' +
-        '  <h1 class="display-6 text-center" style="color: #222529; font-size: large;">Are you sure you want to delete this entry?</h1>' +
+        '  <h1 class="display-6 text-center" style="color: #222529; font-size: large;">Are you sure you want to delete this charge number?</h1>' +
         '  <br>' +
         '</div>' +
         '<div class="modal-footer">' +

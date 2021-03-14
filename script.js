@@ -153,48 +153,44 @@ function ShowChargeModal(edit, id) {
     }
 }
 
-function ShowDeleteModal(id, type) {
-    switch (type.toLowerCase()) {
-        case "entry":
-            //displays modal
-            var entry = EntryById(id);
-            var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
-            var itemModal = document.getElementById("deleteEntryModal");
-            document.getElementById("deleteDescription").innerHTML = entry.description;
-            document.getElementById("deleteDuration").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
-            document.getElementById("deleteCharge").innerHTML = entry.chargeNumber;
-            itemModal.style.display = "block";
-            //sets cancel button click method
-            document.getElementById("cancelDeleteEntryButton").onclick = function() {
-                itemModal.style.display = "none";
-            };
-            //sets deletes item function method
-            document.getElementById("deleteEntryButton").onclick = function() {
-                itemModal.style.display = "none";
-                localStorage.removeItem("timeLogger.Entry_" + id);
-                RefreshTodayUI();
-            };
-            break;
-        case "charge":
-            //displays modal
-            var charge = ChargeNumberById(id);
-            var itemModal = document.getElementById("deleteChargeModal");
-            document.getElementById("deleteChargeDescription").innerHTML = charge.description;
-            document.getElementById("deleteChargeValue").innerHTML = charge.value;
-            itemModal.style.display = "block";
-            //sets cancel button click method
-            document.getElementById("cancelDeleteChargeButton").onclick = function() {
-                itemModal.style.display = "none";
-            };
-            //sets deletes item function method
-            document.getElementById("deleteChargeButton").onclick = function() {
-                itemModal.style.display = "none";
-                localStorage.removeItem("timeLogger.Charge_" + id);
-                RefreshChargeNumberUI();
-            };
-            break;
-    }
+function ShowDeleteEntryModal(id) {
+    //displays modal
+    var entry = EntryById(id);
+    var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+    var itemModal = document.getElementById("deleteEntryModal");
+    document.getElementById("deleteDescription").innerHTML = entry.description;
+    document.getElementById("deleteDuration").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
+    document.getElementById("deleteCharge").innerHTML = entry.chargeNumber;
+    itemModal.style.display = "block";
+    //sets cancel button click method
+    document.getElementById("cancelDeleteEntryButton").onclick = function() {
+        itemModal.style.display = "none";
+    };
+    //sets deletes item function method
+    document.getElementById("deleteEntryButton").onclick = function() {
+        itemModal.style.display = "none";
+        localStorage.removeItem("timeLogger.Entry_" + id);
+        RefreshTodayUI();
+    };
+}
 
+function ShowDeleteChargeModal(id) {
+    //displays modal
+    var charge = ChargeNumberById(id);
+    var itemModal = document.getElementById("deleteChargeModal");
+    document.getElementById("deleteChargeDescription").innerHTML = charge.description;
+    document.getElementById("deleteChargeValue").innerHTML = charge.value;
+    itemModal.style.display = "block";
+    //sets cancel button click method
+    document.getElementById("cancelDeleteChargeButton").onclick = function() {
+        itemModal.style.display = "none";
+    };
+    //sets deletes item function method
+    document.getElementById("deleteChargeButton").onclick = function() {
+        itemModal.style.display = "none";
+        localStorage.removeItem("timeLogger.Charge_" + id);
+        RefreshChargeNumberUI();
+    };
 }
 
 function CopyDescriptionToClipboard(charge) {
@@ -292,7 +288,7 @@ function RefreshTodayUI() {
           '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
           '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
           '<td><button onclick="ShowEntryModal(true, ' + entry.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
-          '<td><button onclick="ShowDeleteModal(' + entry.id + ', "entry")" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+          '<td><button onclick="ShowDeleteEntryModal(' + entry.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
             '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
                 '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
             '</svg></button></td>' +
@@ -309,7 +305,7 @@ function RefreshChargeNumberUI() {
           '<td>' + charge.value +'</td>' +  
           '<td>' + charge.description +'</td>' +
           '<td><button onclick="ShowChargeModal(true, ' + charge.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
-          '<td><button onclick="ShowDeleteModal(' + charge.id + ', "charge")" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+          '<td><button onclick="ShowDeleteChargeModal(' + charge.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
             '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
                 '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
             '</svg></button></td>' +
