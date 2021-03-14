@@ -37,7 +37,6 @@ function ShowEntryModal(edit, id) {
         //sets time picker values
         document.getElementById("startTimePicker").value = ToDatetimeLocal(startTime);
         document.getElementById("stopTimePicker").value = ToDatetimeLocal(stopTime);
-        var test = document.getElementById("startTimePicker").value;
         UpdateModalDuration();
         //displays modal
         var itemModal = document.getElementById("entryModal");
@@ -53,12 +52,12 @@ function ShowEntryModal(edit, id) {
         //sets save button click method
         document.getElementById("saveEntryButton").onclick = function() {
             itemModal.style.display = "none";
-            var id = GetNextId("Entry");
-            var description = document.getElementById("floatingDescription").value;
-            var chargeNumber = document.getElementById("chargeNumber").value;
-            var startTime = new Date(document.getElementById("startTimePicker").value).getTime();
-            var stopTime = new Date(document.getElementById("stopTimePicker").value).getTime();
-            var entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
+            let id = GetNextId("Entry");
+            let description = document.getElementById("floatingDescription").value;
+            let chargeNumber = document.getElementById("chargeNumber").value;
+            let startTime = new Date(document.getElementById("startTimePicker").value).getTime();
+            let stopTime = new Date(document.getElementById("stopTimePicker").value).getTime();
+            let entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
             localStorage.setItem(id, JSON.stringify(entry));
             RefreshTodayUI();
         };
@@ -88,12 +87,12 @@ function ShowEntryModal(edit, id) {
             //sets save button click method
             document.getElementById("saveEntryButton").onclick = function() {
                 itemModal.style.display = "none";
-                var id = "timeLogger.Entry_" + document.getElementById("entryModal").value;
-                var description = document.getElementById("floatingDescription").value;
-                var chargeNumber = document.getElementById("chargeNumber").value;
-                var startTime = new Date(document.getElementById("startTimePicker").value).getTime();
-                var stopTime = new Date(document.getElementById("stopTimePicker").value).getTime();
-                var entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
+                let id = "timeLogger.Entry_" + document.getElementById("entryModal").value;
+                let description = document.getElementById("floatingDescription").value;
+                let chargeNumber = document.getElementById("chargeNumber").value;
+                let startTime = new Date(document.getElementById("startTimePicker").value).getTime();
+                let stopTime = new Date(document.getElementById("stopTimePicker").value).getTime();
+                let entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
                 localStorage.setItem(id, JSON.stringify(entry));
                 RefreshTodayUI();
             };
@@ -101,25 +100,101 @@ function ShowEntryModal(edit, id) {
     }
 }
 
-function ShowDeleteModal(id) {
-    //displays modal
-    var entry = EntryById(id);
-    var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
-    var itemModal = document.getElementById("deleteModal");
-    document.getElementById("deleteDescription").innerHTML = entry.description;
-    document.getElementById("deleteDuration").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
-    document.getElementById("deleteCharge").innerHTML = entry.chargeNumber;
-    itemModal.style.display = "block";
-    //sets discard button click method
-    document.getElementById("cancelDeleteButton").onclick = function() {
-        itemModal.style.display = "none";
-    };
-    //sets deletes item function method
-    document.getElementById("deleteEntryButton").onclick = function() {
-        itemModal.style.display = "none";
-        localStorage.removeItem("timeLogger.Entry_" + id);
-        RefreshTodayUI();
-    };
+function ShowChargeModal(edit, id) {
+    if (edit === false) {
+        //displays modal
+        var itemModal = document.getElementById("chargeModal");
+        document.getElementById("floatingChargeDescription").value = null;
+        document.getElementById("floatingChargeValue").value = null;
+        document.getElementById("chargeModalHeader").innerHTML = "New Charge Number";
+        itemModal.style.display = "block";
+        //sets discard button click method
+        document.getElementById("discardChargeButton").onclick = function() {
+            itemModal.style.display = "none";
+            RefreshChargeNumberUI();
+        };
+        //sets save button click method
+        document.getElementById("saveChargeButton").onclick = function() {
+            itemModal.style.display = "none";
+            let id = GetNextId("Charge");
+            let description = document.getElementById("floatingChargeDescription").value;
+            let chargeNumber = document.getElementById("floatingChargeValue").value;
+            let charge = new ChargeNumber(id.split("_").pop(), description, chargeNumber);
+            localStorage.setItem(id, JSON.stringify(charge));
+            RefreshChargeNumberUI();
+        };
+    }
+    else {
+        if (id !== undefined) {
+            let charge = ChargeNumberById(id);
+            //sets values
+            document.getElementById("floatingChargeDescription").value = charge.description;
+            document.getElementById("floatingChargeValue").value = charge.value;
+            //displays modal
+            var itemModal = document.getElementById("chargeModal");
+            document.getElementById("chargeModalHeader").innerHTML = "Edit Charge Number";
+            itemModal.value = charge.id;
+            itemModal.style.display = "block";
+            //sets discard button click method
+            document.getElementById("discardChargeButton").onclick = function() {
+                itemModal.style.display = "none";
+            };
+            //sets save button click method
+            document.getElementById("saveChargeButton").onclick = function() {
+                itemModal.style.display = "none";
+                let id = "timeLogger.Charge_" + document.getElementById("chargeModal").value;
+                let description = document.getElementById("floatingChargeDescription").value;
+                let chargeNumber = document.getElementById("floatingChargeValue").value;
+                let charge = new ChargeNumber(id.split("_").pop(), description, chargeNumber);
+                localStorage.setItem(id, JSON.stringify(charge));
+                RefreshChargeNumberUI();
+            };
+        }
+    }
+}
+
+function ShowDeleteModal(id, type) {
+    switch (type.toLowerCase()) {
+        case "entry":
+            //displays modal
+            var entry = EntryById(id);
+            var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+            var itemModal = document.getElementById("deleteEntryModal");
+            document.getElementById("deleteDescription").innerHTML = entry.description;
+            document.getElementById("deleteDuration").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
+            document.getElementById("deleteCharge").innerHTML = entry.chargeNumber;
+            itemModal.style.display = "block";
+            //sets cancel button click method
+            document.getElementById("cancelDeleteEntryButton").onclick = function() {
+                itemModal.style.display = "none";
+            };
+            //sets deletes item function method
+            document.getElementById("deleteEntryButton").onclick = function() {
+                itemModal.style.display = "none";
+                localStorage.removeItem("timeLogger.Entry_" + id);
+                RefreshTodayUI();
+            };
+            break;
+        case "charge":
+            //displays modal
+            var charge = ChargeNumberById(id);
+            var itemModal = document.getElementById("deleteChargeModal");
+            document.getElementById("deleteChargeDescription").innerHTML = charge.description;
+            document.getElementById("deleteChargeValue").innerHTML = charge.value;
+            itemModal.style.display = "block";
+            //sets cancel button click method
+            document.getElementById("cancelDeleteChargeButton").onclick = function() {
+                itemModal.style.display = "none";
+            };
+            //sets deletes item function method
+            document.getElementById("deleteChargeButton").onclick = function() {
+                itemModal.style.display = "none";
+                localStorage.removeItem("timeLogger.Charge_" + id);
+                RefreshChargeNumberUI();
+            };
+            break;
+    }
+
 }
 
 function CopyDescriptionToClipboard(charge) {
@@ -217,7 +292,24 @@ function RefreshTodayUI() {
           '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
           '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
           '<td><button onclick="ShowEntryModal(true, ' + entry.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
-          '<td><button onclick="ShowDeleteModal(' + entry.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+          '<td><button onclick="ShowDeleteModal(' + entry.id + ', "entry")" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
+                '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
+            '</svg></button></td>' +
+        '</tr>';
+    });
+}
+
+function RefreshChargeNumberUI() {
+    var chargeNumbers = GetChargeNumbers();
+    //populates charge number table
+    document.getElementById("chargeListRows").innerHTML = null; //resets
+    chargeNumbers.forEach(charge => {
+        document.getElementById("chargeListRows").innerHTML += '<tr>' +
+          '<td>' + charge.value +'</td>' +  
+          '<td>' + charge.description +'</td>' +
+          '<td><button onclick="ShowChargeModal(true, ' + charge.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
+          '<td><button onclick="ShowDeleteModal(' + charge.id + ', "charge")" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
             '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
                 '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
             '</svg></button></td>' +
@@ -297,20 +389,31 @@ function TwelveHourTime(hour, minute, second, showSeconds) {
     return value;
 }
 
-function GetEntries() {
-    var entries = [],
-        keys = Object.keys(localStorage),
+function GetChargeNumbers() {
+    var chargeNumbers = [],
+        keys = Object.keys(localStorage).filter(function(key){ return key.includes("timeLogger.Charge"); }),
         i = keys.length;
 
     while ( i-- ) {
-        entries.push( localStorage.getItem(keys[i]) );
+        chargeNumbers.push(JSON.parse(localStorage.getItem(keys[i])));
+    }
+    return chargeNumbers;
+}
+
+function GetEntries() {
+    var entries = [],
+        keys = Object.keys(localStorage).filter(function(key){ return key.includes("timeLogger.Entry"); }),
+        i = keys.length;
+
+    while ( i-- ) {
+        entries.push(JSON.parse(localStorage.getItem(keys[i])));
     }
     return entries;
 }
 
 function TodaysEntries() {
     var entries = GetEntries();
-    var filtered = entries.map(function(json) {return JSON.parse(json); }).filter(function(entry) {
+    var filtered = entries.filter(function(entry) {
         return entry.startTime >= new Date().setHours(0,0,0,0);
     });
     return filtered.sort((a, b) => (a.startTime > b.startTime) ? -1 : 1);
@@ -318,6 +421,10 @@ function TodaysEntries() {
 
 function EntryById(id) {
     return JSON.parse(localStorage.getItem("timeLogger.Entry_" + id));
+}
+
+function ChargeNumberById(chargeId) {
+    return JSON.parse(localStorage.getItem("timeLogger.Charge_" + chargeId));
 }
 
 //makeshift class for log entry
