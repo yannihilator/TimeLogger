@@ -29,10 +29,7 @@ function entryModal() {
     '  </div>' +
     '  <br>' +
     '  <select id="chargeNumber" class="form-select" aria-label="Charge Number">' +
-    '    <option selected>Charge Number</option>' +
-    '    <option value="1">One</option>' +
-    '    <option value="2">Two</option>' +
-    '    <option value="3">Three</option>' +
+    '    <script>LoadChargeNumbersToModal()</script>' +
     '  </select>' +
     '  <br>' +
     '</div>' +

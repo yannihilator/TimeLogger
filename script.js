@@ -259,14 +259,16 @@ function RefreshTodayUI() {
     //populates totals by charge number table
     document.getElementById("chargeTotalsRows").innerHTML = null; //resets
     var grouped = groupBy(entries, entry => entry.chargeNumber);
-    grouped.forEach(chargeNumber => {
-        let chargeDuration = ConvertDateTicks(chargeNumber.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
+    grouped.forEach(chargeId => {
+        let chargeDuration = ConvertDateTicks(chargeId.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
+        let charge = ChargeNumberById(chargeId[0].chargeNumber);
+        let chargeNumberString = charge === undefined ? "Not found" : charge.value;
         document.getElementById("chargeTotalsRows").innerHTML += '<tr>' +
-          '<td>' + chargeNumber[0].chargeNumber +'</td>' +
+          '<td>' + chargeNumberString +'</td>' +
           '<td>' + chargeDuration.hour + ":" + chargeDuration.minute + ":" + chargeDuration.second +'</td>' +
           '<td>' + (parseInt(chargeDuration.hour) + parseInt(chargeDuration.minute)/60).toFixed(1) + '</td>' +
           '<td>' + 
-            '<button id="copy_' + chargeNumber[0].chargeNumber + '" onclick="CopyDescriptionToClipboard(' + chargeNumber[0].chargeNumber + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+            '<button id="copy_' + charge.id + '" onclick="CopyDescriptionToClipboard(' + charge.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
                 '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">' +
                     '<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
                     '<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
@@ -278,12 +280,14 @@ function RefreshTodayUI() {
     //populates entry list table
     document.getElementById("entryListRows").innerHTML = null; //resets
     entries.forEach(entry => {
-        var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
-        var startTime = ConvertDateTicks(entry.startTime, false);
-        var endTime = ConvertDateTicks(entry.endTime, false);
+        let duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+        let startTime = ConvertDateTicks(entry.startTime, false);
+        let endTime = ConvertDateTicks(entry.endTime, false);
+        let charge = ChargeNumberById(entry.chargeNumber);
+        let chargeNumberString = charge === undefined ? "Not found" : charge.value;
         document.getElementById("entryListRows").innerHTML += '<tr>' +
           '<td>' + entry.description +'</td>' +  
-          '<td>' + entry.chargeNumber +'</td>' +
+          '<td>' + chargeNumberString +'</td>' +
           '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
           '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
           '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
@@ -310,6 +314,17 @@ function RefreshChargeNumberUI() {
                 '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
             '</svg></button></td>' +
         '</tr>';
+    });
+}
+
+function LoadChargeNumbersToModal() {
+    var chargeNumbers = GetChargeNumbers();
+    //populates charge number modal select dropdown
+    var dropdown = document.getElementById("chargeNumber");
+    dropdown.innerHTML = null; //resets
+    dropdown.innerHTML += '<option selected>Charge Number</option>';
+    chargeNumbers.forEach(charge => {
+        dropdown.innerHTML += '<option value="' + charge.id + '">' + charge.value + '</option>';
     });
 }
 
