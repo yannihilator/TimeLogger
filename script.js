@@ -300,6 +300,39 @@ function RefreshTodayUI() {
     });
 }
 
+function RefreshHistoryUI(group) {
+    var entries = GetEntries();
+    var grouped;
+    //groups entries based on group by filter
+    switch (group) {
+        case "day":
+            grouped = groupBy(entries, function(entry) {
+                return new Date(entry.startTime).setHours(0,0,0,0);
+            });
+        break;
+        case "week":
+            grouped = groupBy(entries, function(entry) {
+                let start = new Date(entry.startTime);
+                return new Date(start.setHours(0,0,0,0)).setDate(start.getDate() - start.getDay());
+            });
+        break;
+        case "month":
+            grouped = groupBy(entries, function(entry) {
+                return new Date(new Date(entry.startTime).setHours(0,0,0,0)).setDate(1);
+            });
+        break;
+        default:
+            grouped = groupBy(entries, function(entry) {
+                let start = new Date(entry.startTime);
+                return new Date(start.setHours(0,0,0,0)).setDate(start.getDate() - start.getDay());
+            });
+        break;
+    }
+
+    //creates dropdown for each group
+    
+}
+
 function RefreshChargeNumberUI() {
     var chargeNumbers = GetChargeNumbers();
     //populates charge number table
@@ -452,6 +485,11 @@ function ChargeNumber(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
+}
+
+function TimeSpan(str) {
+    var from = str.split("-")[0];
+    var to = str.split("-")[1];
 }
 
 /**
