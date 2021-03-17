@@ -254,8 +254,18 @@ function RefreshTodayUI() {
     '  <h1 class="display-6" style="color: #222529; font-size: x-large; font-weight: bold;">' +
     '    Total ' +
     '    <span id="totalDuration" class="display-6" style="color: #222529; font-size: x-large;">' + totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second + '</span>' +
-    '  </h1>' +
+     '  </h1>' +
     '</div>';
+
+    document.getElementById("todayTotalTableDuration").innerHTML = totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second;
+    document.getElementById("todayTotalTableValue").innerHTML = ((parseInt(totalDuration.hour) + parseInt(totalDuration.minute)/60).toFixed(1));
+    
+   /*  if (entries.length === 0) {
+        document.getElementById("todayTotalTable").style.display = "none";
+        document.getElementById("chargeTable").style.display = "none";
+        document.getElementById("entryTable").style.display = "none";
+    } */
+    
     //populates totals by charge number table
     document.getElementById("chargeTotalsRows").innerHTML = null; //resets
     var grouped = groupBy(entries, entry => entry.chargeNumber);
@@ -347,7 +357,6 @@ function RefreshHistoryUI(group) {
         '  <div class="card-body">' +
         '    <div class="row justify-content-md-center">' +
         '      <table class="table table-hover table-striped caption-top" style="width: 85%;">' +
-        '        <caption class="display-6 text-center" style="color: #222529; font-size: large;">Charge Numbers</caption>' +
         '        <style>' +
         '          td{border: none};' +
         '          th{border-bottom-width: thick; border-bottom-color: #222529;}' +

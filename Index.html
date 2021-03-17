@@ -33,7 +33,24 @@
             <br>
         </div>
         <br>
-        <div class="row justify-content-md-center">
+        <div id="todayTotalTable" class="row justify-content-md-center">
+          <table class="table table-hover table-striped caption-top" style="width: 60%;">
+            <caption class="display-6 text-center" style="color: #222529; font-size: large;">Today's Total</caption>
+            <style>
+              td{border: none};
+              th{border-bottom-width: thick; border-bottom-color: #222529;}
+            </style>
+            <thead>
+              <tr style="border-width: thick; border-color: #222529; border-style: double; border-right-style: solid; border-left-style: solid; border-left-width: thin; border-right-width: thin;">
+                <th scope="col">Today's Total</th>
+                <th id="todayTotalTableDuration" scope="col"></th>
+                <th id="todayTotalTableValue" scope="col"></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <br>
+        <div id="chargeTable" class="row justify-content-md-center">
           <table class="table table-hover table-striped caption-top" style="width: 60%;">
             <caption class="display-6 text-center" style="color: #222529; font-size: large;">Totals by Charge Number</caption>
             <style>
@@ -52,7 +69,7 @@
           </table>
         </div>
         <br>
-        <div class="row justify-content-md-center">
+        <div id="entryTable" class="row justify-content-md-center">
           <table class="table table-hover table-striped caption-top" style="width: 80%;">
             <caption class="display-6 text-center" style="color: #222529; font-size: large;">Entry List</caption>
             <style>
