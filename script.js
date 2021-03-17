@@ -326,11 +326,47 @@ function RefreshHistoryUI(group) {
                 let start = new Date(entry.startTime);
                 return new Date(start.setHours(0,0,0,0)).setDate(start.getDate() - start.getDay());
             });
-        break;
+        break;     
     }
 
     //creates dropdown for each group
-
+    var cards = "";
+    grouped.forEach(group => 
+        cards += '<div class="card">' +
+        '<div class="card-header" style="background-color: #222529; ">' +
+        '  <h2 class="mb-0">' +
+        '    <button class="btn collapsed" style="background-color:#222529; color: whitesmoke;" type="button" data-toggle="collapse" data-target="#collapsible' + group[0].id + '" aria-expanded="false" aria-controls="collapseTwo">' +
+                HistoryCollapsibleTitle(group[0].startTime) +
+        '    </button>' +
+        '  </h2>' +
+        '</div>' +
+        '<div id="collapsible' + group[0].id + '" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">' +
+        '  <div class="card-body">' +
+        '    <div class="row justify-content-md-center">' +
+        '      <table class="table table-hover table-striped caption-top" style="width: 85%;">' +
+        '        <caption class="display-6 text-center" style="color: #222529; font-size: large;">Charge Numbers</caption>' +
+        '        <style>' +
+        '          td{border: none};' +
+        '          th{border-bottom-width: thick; border-bottom-color: #222529;}' +
+        '        </style>' +
+        '        <thead>' +
+        '          <tr style="border-width: thick; border-color: #222529; border-style: double; border-right-style: solid; border-left-style: solid; border-left-width: thin; border-right-width: thin;">' +
+        '            <script type="text/javascript">' +
+        '              if (document.getElementById())' +
+        '            </script>' +
+        '            <th scope="col">Charge Number</th>' +
+        '            <th scope="col">Description</th>' +
+        '            <th scope="col"></th>' +
+        '            <th scope="col"></th>' +
+        '          </tr>' +
+        '        </thead>' +
+        '        <tbody id="chargeListRows"></tbody>' +
+        '      </table>' +
+        '    </div>' +
+        '  </div>' +
+        '</div>' +
+    '</div>');
+    document.write(cards);
 }
 
 function RefreshChargeNumberUI() {
@@ -348,6 +384,26 @@ function RefreshChargeNumberUI() {
             '</svg></button></td>' +
         '</tr>';
     });
+}
+
+function HistoryCollapsibleTitle(time) {
+    var title;
+    switch (document.getElementById("groupBySelection").value) {
+        case "day":
+            title = new Date(time).toLocaleString("en-US", {year: 'numeric', month: 'long', day: 'numeric'});
+            break;
+        case "week":
+            let date = new Date(time);
+            title = "Week of " + new Date(date.setDate(date.getDate() - date.getDay() + 1)).toLocaleString("en-US", {year: 'numeric', month: 'long', day: 'numeric'});
+            break;
+        case "month":
+            title = new Date(time).toLocaleString("en-US", { month: 'long', year: 'numeric'});
+            break;
+        case "year":
+            title = Date(time).toLocaleString("en-US", { year: 'numeric' });
+            break; 
+    }
+    return title;
 }
 
 function LoadChargeNumbersToModal() {
