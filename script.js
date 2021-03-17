@@ -329,18 +329,21 @@ function RefreshHistoryUI(group) {
         break;     
     }
 
+    //sorts groups in most recent to oldest order
+    grouped = new Map([...grouped.entries()].sort());
+
     //creates dropdown for each group
     var cards = "";
     grouped.forEach(group => 
         cards += '<div class="card">' +
         '<div class="card-header" style="background-color: #222529; ">' +
         '  <h2 class="mb-0">' +
-        '    <button class="btn collapsed" style="background-color:#222529; color: whitesmoke;" type="button" data-toggle="collapse" data-target="#collapsible' + group[0].id + '" aria-expanded="false" aria-controls="collapseTwo">' +
+        '    <button class="btn collapsed" style="background-color:#222529; width: 100%; text-align: left; color: whitesmoke;" type="button" data-toggle="collapse" data-target="#collapsible' + group[0].id + '" aria-expanded="false" aria-controls="collapseTwo">' +
                 HistoryCollapsibleTitle(group[0].startTime) +
         '    </button>' +
         '  </h2>' +
         '</div>' +
-        '<div id="collapsible' + group[0].id + '" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">' +
+        '<div id="collapsible' + group[0].id + '" class="collapse" aria-labelledby="headingTwo" data-parent="#historyAccordion">' +
         '  <div class="card-body">' +
         '    <div class="row justify-content-md-center">' +
         '      <table class="table table-hover table-striped caption-top" style="width: 85%;">' +
@@ -366,7 +369,7 @@ function RefreshHistoryUI(group) {
         '  </div>' +
         '</div>' +
     '</div>');
-    document.write(cards);
+    document.getElementById("historyAccordion").innerHTML = cards;
 }
 
 function RefreshChargeNumberUI() {
