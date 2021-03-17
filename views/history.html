@@ -15,28 +15,45 @@
         </header>
         <br>
         <div class="row justify-content-lg-evenly">
-          <div class="row justify-content-lg-center" style="width: 50%;">
-            Group By
-            <select id="groupBySelection" class="form-select" aria-label="Group By">
-              <option value="Day">Day</option>
-              <option value="Week">Week</option>
-              <option value="Month">Month</option>
-              <option value="Year">Year</option>
+          <div class="row justify-content-md-center" style="width: 50%;">
+            <select id="groupBySelection" class="form-select" aria-label="Group By" style="width: 60%;">
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
             </select>
+            <label for="groupBySelection">Group By</label>
           </div>
-          <div class="row justify-content-lg-center" style="width: 50%;">
-            Content 
-            <select id="contentSelection" class="form-select" aria-label="Content">
+          <div class="row justify-content-md-center" style="width: 50%;">
+            <select id="contentSelection" class="form-select" aria-label="Content" style="width: 60%;">
               <option value="entry">Entry</option>
               <option value="chargeNumber">Charge Number</option>
               <option value="total">Total</option>
             </select>
+            <label for="contentSelection" style="vertical-align: middle;">Content</label>
           </div>
           
         </div>
         <br>
         <div class="row justify-content-md-center">
           <div class="accordion" id="accordionExample" style="width: 80%;">
+            <script type="text/javascript">
+              var items;
+              var groupBy = document.getElementById("groupBySelection").value;
+              switch (groupBy) {
+                case "day": 
+                  items = 
+                  document.write('asdf' +
+                  '');
+                  break;
+                case "week": 
+
+                  break;
+                case "month": 
+
+                  break;
+              }
+            </script>
             <div class="card">
               <div class="card-header" id="headingTwo" style="background-color: #222529; ">
                 <h2 class="mb-0">
@@ -74,32 +91,6 @@
           </div>
         </div>
         <br>
-
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-          Launch demo modal
-        </button>
-
-        <!-- Modal -->
-        <div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                ...
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div id="myModal" class="modal">
           <div id="entryModal" class="modal">
