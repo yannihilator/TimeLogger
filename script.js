@@ -356,24 +356,11 @@ function RefreshHistoryUI(group) {
         '<div id="collapsible' + group[0].id + '" class="collapse" aria-labelledby="headingTwo" data-parent="#historyAccordion">' +
         '  <div class="card-body">' +
         '    <div class="row justify-content-md-center">' +
-        '      <table class="table table-hover table-striped caption-top" style="width: 85%;">' +
-        '        <style>' +
+        '       <style>' +
         '          td{border: none};' +
         '          th{border-bottom-width: thick; border-bottom-color: #222529;}' +
-        '        </style>' +
-        '        <thead>' +
-        '          <tr style="border-width: thick; border-color: #222529; border-style: double; border-right-style: solid; border-left-style: solid; border-left-width: thin; border-right-width: thin;">' +
-        '            <script type="text/javascript">' +
-        '              if (document.getElementById())' +
-        '            </script>' +
-        '            <th scope="col">Charge Number</th>' +
-        '            <th scope="col">Description</th>' +
-        '            <th scope="col"></th>' +
-        '            <th scope="col"></th>' +
-        '          </tr>' +
-        '        </thead>' +
-        '        <tbody id="chargeListRows"></tbody>' +
-        '      </table>' +
+        '       </style>' +
+                HistoryCollapsibleTable(group[0].startTime, group[0].endTime, document.getElementById("contentSelection").value) +
         '    </div>' +
         '  </div>' +
         '</div>' +
@@ -416,6 +403,90 @@ function HistoryCollapsibleTitle(time) {
             break; 
     }
     return title;
+}
+
+function HistoryCollapsibleTable(start, end, type) {
+    var entries, tableHtml, tableHeaders;
+    var rowsHtml = "";
+    entries = GetEntries().filter(function(entry) { return entry.startTime >= new Date(start).setHours(0,0,0,0) && entry.endTime <= new Date(end).setHours(23,59,59,999); })
+                .sort((a, b) => (a.startTime > b.startTime) ? 1 : -1);
+
+    switch (type) {
+        case "entry":
+            tableHeaders = '<th scope="col">Description</th>' +
+                '<th scope="col">Charge Number</th>' +
+                '<th scope="col">Duration</th>' +
+                '<th scope="col">Start Time</th>' +
+                '<th scope="col">End Time</th>' +    
+                '<th scope="col"></th>' +
+                '<th scope="col"></th>';
+            entries.forEach(entry => {
+                let duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
+                let startTime = ConvertDateTicks(entry.startTime, false);
+                let endTime = ConvertDateTicks(entry.endTime, false);
+                let charge = ChargeNumberById(entry.chargeNumber);
+                let chargeNumberString = charge === null ? "None" : charge.value;
+                rowsHtml += '<tr>' +
+                    '<td>' + entry.description +'</td>' +  
+                    '<td>' + chargeNumberString +'</td>' +
+                    '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
+                    '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
+                    '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
+                    '<td><button onclick="ShowEntryModal(true, ' + entry.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
+                    '<td><button onclick="ShowDeleteEntryModal(' + entry.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
+                        '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
+                    '</svg></button></td>' +
+                '</tr>';
+            });
+            break;
+        case "chargeNumber":
+            tableHeaders = '<th scope="col">Charge Number</th>' +
+                '<th scope="col">Duration</th>' +
+                '<th scope="col">Value</th>' +
+                '<th scope="col">Description</th>';
+            let grouped = groupBy(entries, entry => entry.chargeNumber);
+            grouped.forEach(chargeId => {
+                let chargeDuration = ConvertDateTicks(chargeId.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
+                let charge = ChargeNumberById(chargeId[0].chargeNumber);
+                let chargeNumberString = charge === null ? "None" : charge.value;
+                rowsHtml += '<tr>' +
+                    '<td>' + chargeNumberString +'</td>' +
+                    '<td>' + chargeDuration.hour + ":" + chargeDuration.minute + ":" + chargeDuration.second +'</td>' +
+                    '<td>' + (parseInt(chargeDuration.hour) + parseInt(chargeDuration.minute)/60).toFixed(1) + '</td>' +
+                    '<td>' + 
+                        '<button id="copy_' + charge?.id + '" onclick="CopyDescriptionToClipboard(' + charge?.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">' +
+                                '<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
+                                '<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
+                            '</svg>' +  
+                        '</button>' + 
+                    '</td>' +
+                '</tr>';
+            });
+            break;
+        case "total":
+            let totalDuration = ConvertDateTicks(entries.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);       
+            let totalDurationString = totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second;
+            let totalValueString = ((parseInt(totalDuration.hour) + parseInt(totalDuration.minute)/60).toFixed(1));
+            tableHeaders = '<th scope="col">Today\'s Total</th>' +
+                '<th scope="col">' + totalDurationString + '</th>' +
+                '<th scope="col">' + totalValueString + '</th>';
+            break;    
+    };
+
+    tableHtml = '<table class="table table-hover table-striped caption-top" style="width: 85%;">' +
+    '        <thead>' +
+    '          <tr style="border-width: thick; border-color: #222529; border-style: double; border-right-style: solid; border-left-style: solid; border-left-width: thin; border-right-width: thin;">' +
+                tableHeaders +                
+    '          </tr>' +
+    '        </thead>' +
+    '        <tbody id="chargeListRows">' +
+                rowsHtml +
+    '        </tbody>' +
+    '      </table>';
+
+    return tableHtml;
 }
 
 function LoadChargeNumbersToModal() {
