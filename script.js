@@ -311,6 +311,9 @@ function RefreshTodayUI() {
 }
 
 function RefreshHistoryUI(group) {
+    //sets group by selection
+    document.getElementById("groupBySelection").value = group;
+    //initializes variables
     var entries = GetEntries();
     var grouped;
     //groups entries based on group by filter
