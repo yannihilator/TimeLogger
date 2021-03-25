@@ -311,7 +311,9 @@ function RefreshTodayUI() {
 }
 
 function RefreshHistoryUI(group, content) {
-    content = "chargeNumber"
+    //sets defaults if null
+    if (group === undefined) group = "week";
+    if (content === undefined) content = "chargeNumber";
     //sets group by selection
     document.getElementById("groupBySelection").value = group;
     document.getElementById("contentSelection").value = content;
@@ -417,7 +419,7 @@ function HistoryCollapsibleTitle(time) {
     var title;
     switch (document.getElementById("groupBySelection").value) {
         case "day":
-            title = new Date(time).toLocaleString("en-US", {year: 'numeric', month: 'long', day: 'numeric'});
+            title = new Date(time).toLocaleString("en-US", {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
             break;
         case "week":
             let date = new Date(time);
