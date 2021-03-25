@@ -260,11 +260,16 @@ function RefreshTodayUI() {
     document.getElementById("todayTotalTableDuration").innerHTML = totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second;
     document.getElementById("todayTotalTableValue").innerHTML = ((parseInt(totalDuration.hour) + parseInt(totalDuration.minute)/60).toFixed(1));
     
-   /*  if (entries.length === 0) {
+    if (entries.length === 0) {
         document.getElementById("todayTotalTable").style.display = "none";
         document.getElementById("chargeTable").style.display = "none";
         document.getElementById("entryTable").style.display = "none";
-    } */
+    }
+    else {
+        document.getElementById("todayTotalTable").style.display = "flex";
+        document.getElementById("chargeTable").style.display = "flex";
+        document.getElementById("entryTable").style.display = "flex";
+    }
     
     //populates totals by charge number table
     document.getElementById("chargeTotalsRows").innerHTML = null; //resets
