@@ -310,9 +310,11 @@ function RefreshTodayUI() {
     });
 }
 
-function RefreshHistoryUI(group) {
+function RefreshHistoryUI(group, content) {
+    content = "chargeNumber"
     //sets group by selection
     document.getElementById("groupBySelection").value = group;
+    document.getElementById("contentSelection").value = content;
     //initializes variables
     var entries = GetEntries();
     var grouped;
@@ -343,31 +345,54 @@ function RefreshHistoryUI(group) {
     }
 
     //sorts groups in most recent to oldest order
-    grouped = new Map([...grouped.entries()].sort());
+    grouped = new Map([...grouped.entries()].sort().reverse());
 
     //creates dropdown for each group
     var cards = "";
-    grouped.forEach(group => 
+    grouped.forEach(collapsible => {
+        let start, end;
+        switch (group) {
+            case "day":
+                start = new Date(collapsible[0].startTime).setHours(0,0,0,0);
+                end = new Date(collapsible[0].startTime).setHours(23,59,59,999);
+                break;
+            case "week":
+                let date = new Date(collapsible[0].startTime);
+                start = new Date(date.setDate(date.getDate() - date.getDay())).setHours(0,0,0,0);
+                end = new Date(date.setDate(date.getDate() - date.getDay() + 6)).setHours(23,59,59,999);
+                break;
+            case "month":
+                start = new Date(new Date(collapsible[0].startTime).setHours(0,0,0,0)).setDate(1);
+                end = new Date(new Date(collapsible[0].startTime).setHours(0,0,0,0)).setDate(new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate());
+                break;
+            default:
+                start = new Date(collapsible[0].startTime).setHours(0,0,0,0);
+                end = new Date(collapsible[0].startTime).setHours(23,59,59,999);
+                break;
+        };
+
+        //adds html for each card to variable
         cards += '<div class="card">' +
-        '<div class="card-header" style="background-color: #222529; ">' +
-        '  <h2 class="mb-0">' +
-        '    <button class="btn collapsed" style="background-color:#222529; width: 100%; text-align: left; color: whitesmoke;" type="button" data-toggle="collapse" data-target="#collapsible' + group[0].id + '" aria-expanded="false" aria-controls="collapseTwo">' +
-                HistoryCollapsibleTitle(group[0].startTime) +
-        '    </button>' +
-        '  </h2>' +
-        '</div>' +
-        '<div id="collapsible' + group[0].id + '" class="collapse" aria-labelledby="headingTwo" data-parent="#historyAccordion">' +
-        '  <div class="card-body">' +
-        '    <div class="row justify-content-md-center">' +
-        '       <style>' +
-        '          td{border: none};' +
-        '          th{border-bottom-width: thick; border-bottom-color: #222529;}' +
-        '       </style>' +
-                HistoryCollapsibleTable(group[0].startTime, group[0].endTime, document.getElementById("contentSelection").value) +
-        '    </div>' +
-        '  </div>' +
-        '</div>' +
-    '</div>');
+            '<div class="card-header" style="background-color: #222529; ">' +
+            '  <h2 class="mb-0">' +
+            '    <button class="btn collapsed" style="background-color:#222529; width: 100%; text-align: left; color: whitesmoke;" type="button" data-toggle="collapse" data-target="#collapsible' + collapsible[0].id + '" aria-expanded="false" aria-controls="collapseTwo">' +
+                    HistoryCollapsibleTitle(collapsible[0].startTime) +
+            '    </button>' +
+            '  </h2>' +
+            '</div>' +
+            '<div id="collapsible' + collapsible[0].id + '" class="collapse" aria-labelledby="headingTwo" data-parent="#historyAccordion">' +
+            '  <div class="card-body">' +
+            '    <div class="row justify-content-md-center">' +
+            '       <style>' +
+            '          td{border: none};' +
+            '          th{border-bottom-width: thick; border-bottom-color: #222529;}' +
+            '       </style>' +
+                    HistoryCollapsibleTable(start, end, content) +
+            '    </div>' +
+            '  </div>' +
+            '</div>' +
+        '</div>';
+    });
     document.getElementById("historyAccordion").innerHTML = cards;
 }
 
@@ -411,7 +436,7 @@ function HistoryCollapsibleTitle(time) {
 function HistoryCollapsibleTable(start, end, type) {
     var entries, tableHtml, tableHeaders;
     var rowsHtml = "";
-    entries = GetEntries().filter(function(entry) { return entry.startTime >= new Date(start).setHours(0,0,0,0) && entry.endTime <= new Date(end).setHours(23,59,59,999); })
+    entries = GetEntries().filter(function(entry) { return entry.startTime >= start && entry.endTime <= end; })
                 .sort((a, b) => (a.startTime > b.startTime) ? 1 : -1);
 
     switch (type) {
@@ -446,8 +471,7 @@ function HistoryCollapsibleTable(start, end, type) {
         case "chargeNumber":
             tableHeaders = '<th scope="col">Charge Number</th>' +
                 '<th scope="col">Duration</th>' +
-                '<th scope="col">Value</th>' +
-                '<th scope="col">Description</th>';
+                '<th scope="col">Value</th>';
             let grouped = groupBy(entries, entry => entry.chargeNumber);
             grouped.forEach(chargeId => {
                 let chargeDuration = ConvertDateTicks(chargeId.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);
@@ -457,14 +481,6 @@ function HistoryCollapsibleTable(start, end, type) {
                     '<td>' + chargeNumberString +'</td>' +
                     '<td>' + chargeDuration.hour + ":" + chargeDuration.minute + ":" + chargeDuration.second +'</td>' +
                     '<td>' + (parseInt(chargeDuration.hour) + parseInt(chargeDuration.minute)/60).toFixed(1) + '</td>' +
-                    '<td>' + 
-                        '<button id="copy_' + charge?.id + '" onclick="CopyDescriptionToClipboard(' + charge?.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">' +
-                                '<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
-                                '<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
-                            '</svg>' +  
-                        '</button>' + 
-                    '</td>' +
                 '</tr>';
             });
             break;
@@ -472,7 +488,7 @@ function HistoryCollapsibleTable(start, end, type) {
             let totalDuration = ConvertDateTicks(entries.map(function(entry) { return entry.endTime - entry.startTime; }).reduce((a, b) => a + b, 0), true);       
             let totalDurationString = totalDuration.hour + ":" + totalDuration.minute + ":" + totalDuration.second;
             let totalValueString = ((parseInt(totalDuration.hour) + parseInt(totalDuration.minute)/60).toFixed(1));
-            tableHeaders = '<th scope="col">Today\'s Total</th>' +
+            tableHeaders = '<th scope="col">Total</th>' +
                 '<th scope="col">' + totalDurationString + '</th>' +
                 '<th scope="col">' + totalValueString + '</th>';
             break;    
@@ -484,7 +500,7 @@ function HistoryCollapsibleTable(start, end, type) {
                 tableHeaders +                
     '          </tr>' +
     '        </thead>' +
-    '        <tbody id="chargeListRows">' +
+    '        <tbody>' +
                 rowsHtml +
     '        </tbody>' +
     '      </table>';
