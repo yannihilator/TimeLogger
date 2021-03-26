@@ -29,7 +29,7 @@ function ToggleTimer() {
     }
 }
   
-function ShowEntryModal(edit, id) {
+function ShowEntryModal(edit, id, history = false) {
     if (edit === false) {
         //converts ticks to usable format
         var startTime = ConvertDateTicks(currentEntryStartTime, false);
@@ -94,7 +94,8 @@ function ShowEntryModal(edit, id) {
                 let stopTime = new Date(document.getElementById("stopTimePicker").value).getTime();
                 let entry = new Entry(id.split("_").pop(), startTime, stopTime, description, chargeNumber);
                 localStorage.setItem(id, JSON.stringify(entry));
-                RefreshTodayUI();
+                if (history) { RefreshHistoryUI(document.getElementById("groupBySelection").value, document.getElementById("contentSelection").value); }
+                else { RefreshTodayUI(); }
             };
         }
     }
@@ -153,14 +154,14 @@ function ShowChargeModal(edit, id) {
     }
 }
 
-function ShowDeleteEntryModal(id) {
+function ShowDeleteEntryModal(id, history = false) {
     //displays modal
     var entry = EntryById(id);
     var duration = ConvertDateTicks(entry.endTime - entry.startTime, true);
     var itemModal = document.getElementById("deleteEntryModal");
     document.getElementById("deleteDescription").innerHTML = entry.description;
     document.getElementById("deleteDuration").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
-    document.getElementById("deleteCharge").innerHTML = entry.chargeNumber;
+    document.getElementById("deleteCharge").innerHTML = ChargeNumberById(entry.chargeNumber).value;
     itemModal.style.display = "block";
     //sets cancel button click method
     document.getElementById("cancelDeleteEntryButton").onclick = function() {
@@ -170,7 +171,8 @@ function ShowDeleteEntryModal(id) {
     document.getElementById("deleteEntryButton").onclick = function() {
         itemModal.style.display = "none";
         localStorage.removeItem("timeLogger.Entry_" + id);
-        RefreshTodayUI();
+        if (history) { RefreshHistoryUI(document.getElementById("groupBySelection").value, document.getElementById("contentSelection").value); }
+        else { RefreshTodayUI(); }
     };
 }
 
@@ -443,12 +445,14 @@ function HistoryCollapsibleTitle(time) {
 function HistoryCollapsibleTable(start, end, type) {
     var entries, tableHtml, tableHeaders;
     var rowsHtml = "";
+    var showDayColumn = document.getElementById("groupBySelection").value === ("week" || "month");
     entries = GetEntries().filter(function(entry) { return entry.startTime >= start && entry.endTime <= end; })
                 .sort((a, b) => (a.startTime > b.startTime) ? 1 : -1);
 
     switch (type) {
         case "entry":
-            tableHeaders = '<th scope="col">Description</th>' +
+            tableHeaders = (showDayColumn ? '<th scope="col">Date</th>' : '') +
+                '<th scope="col">Description</th>' +
                 '<th scope="col">Charge Number</th>' +
                 '<th scope="col">Duration</th>' +
                 '<th scope="col">Start Time</th>' +
@@ -462,13 +466,14 @@ function HistoryCollapsibleTable(start, end, type) {
                 let charge = ChargeNumberById(entry.chargeNumber);
                 let chargeNumberString = charge === null ? "None" : charge.value;
                 rowsHtml += '<tr>' +
+                    (showDayColumn ? '<td>' + new Date(entry.startTime).toLocaleString("en-US", {month: "numeric", day: "numeric", year: "numeric"}) + '</td>' : '') +
                     '<td>' + entry.description +'</td>' +  
                     '<td>' + chargeNumberString +'</td>' +
                     '<td>' + duration.hour + ":" + duration.minute + ":" + duration.second +'</td>' +
                     '<td>' + TwelveHourTime(startTime.hour, startTime.minute, startTime.second, false) + '</td>' +
                     '<td>' + TwelveHourTime(endTime.hour, endTime.minute, endTime.second, false) + '</td>' + 
-                    '<td><button onclick="ShowEntryModal(true, ' + entry.id + ')" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
-                    '<td><button onclick="ShowDeleteEntryModal(' + entry.id + ')" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
+                    '<td><button onclick="ShowEntryModal(true, ' + entry.id + ', true)" style="background-color:#bc6ff1;" type="button" class="btn btn-dark btn-sm">Edit</button></td>' +
+                    '<td><button onclick="ShowDeleteEntryModal(' + entry.id + ', true)" style="background-color:#892cdc;" type="button" class="btn btn-dark btn-sm">' +
                     '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
                         '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
                     '</svg></button></td>' +
@@ -501,7 +506,7 @@ function HistoryCollapsibleTable(start, end, type) {
             break;    
     };
 
-    tableHtml = '<table class="table table-hover table-striped caption-top" style="width: 85%;">' +
+    tableHtml = '<table class="table table-hover table-striped caption-top" style="width: 95%;">' +
     '        <thead>' +
     '          <tr style="border-width: thick; border-color: #222529; border-style: double; border-right-style: solid; border-left-style: solid; border-left-width: thin; border-right-width: thin;">' +
                 tableHeaders +                
