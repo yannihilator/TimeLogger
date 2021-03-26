@@ -1,6 +1,9 @@
 var currentEntryStartTime, currentEntryStopTime;
 var recording = false;
 var timer = new AdjustingInterval(1000);
+var version = "V1.0.0";
+
+function Version() {document.write(version);}
 
 function ToggleTimer() {
     var timeElapsed = document.getElementById("timeElapsed");

@@ -6,6 +6,15 @@ h1 {
     color: whitesmoke;
 }
 
+footer {
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    padding: 3px;
+    color: white;
+    width: 100%;
+}
+
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
