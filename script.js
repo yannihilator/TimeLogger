@@ -24,7 +24,7 @@ function ToggleTimer() {
         startStopButton.innerHTML = "Start";
         startStopButton.style.backgroundColor = "#52057b";
         timeElapsed.style.fontWeight = "normal";
-        document.getElementById("tabTitle").innerHTML = "Time Logger"
+        document.getElementById("tabTitle").innerHTML = "Time Logger";
         ShowEntryModal(false);
     }
 }
@@ -161,7 +161,7 @@ function ShowDeleteEntryModal(id, history = false) {
     var itemModal = document.getElementById("deleteEntryModal");
     document.getElementById("deleteDescription").innerHTML = entry.description;
     document.getElementById("deleteDuration").innerHTML = duration.hour + ":" + duration.minute + ":" + duration.second;
-    document.getElementById("deleteCharge").innerHTML = ChargeNumberById(entry.chargeNumber).value;
+    document.getElementById("deleteCharge").innerHTML = ChargeNumberById(entry.chargeNumber)?.value ?? "None";
     itemModal.style.display = "block";
     //sets cancel button click method
     document.getElementById("cancelDeleteEntryButton").onclick = function() {
