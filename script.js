@@ -204,7 +204,7 @@ function CopyDescriptionToClipboard(charge) {
     var entries = TodaysEntries();
     entries.filter(function(entry) { return entry.chargeNumber == charge; })
     .forEach(entry => 
-        str += str === "" ? entry.description : " " + entry.description
+        str += str === "" ? entry.description : ", " + entry.description
     );
     //Creates dummy element
     var el = document.createElement('textarea');
