@@ -64,3 +64,50 @@ footer {
     from {top: -300px; opacity: 0}
     to {top: 0; opacity: 1}
 }
+
+/* For high resolution screen sizes */
+@media (min-width: 1500px) {
+    body {
+        font-size: 1.5rem;
+    }
+    .display-6 {
+        font-size: 3rem;
+    }
+    .btn {
+        font-size: 1.5rem;
+    }
+}
+
+/* For laptop screen sizes */
+@media (min-width: 750px) and (max-width: 1500px) {
+    body {
+        font-size: 1.1rem;
+    }
+    .display-6 {
+        font-size: 2rem;
+    }
+    .card {
+        width: 51%;
+    }
+    .btn {
+        font-size: 1.1rem;
+  
+    }
+}
+
+/* For mobile */
+@media (max-width: 750px) {
+    body {
+        font-size: 0.9rem;
+    }
+    .display-6 {
+        font-size: 1.5rem;
+    }
+    .card {
+        width: 80%;
+    }
+    .btn {
+        font-size: 1.0rem;
+  
+    }
+}
